@@ -52,7 +52,6 @@ exports.getEmployeeStats = async (req, res) => {
         present: monthlyAttendance.filter(a => a.status === 'present').length,
         absent: monthlyAttendance.filter(a => a.status === 'absent').length,
         late: monthlyAttendance.filter(a => a.status === 'late').length,
-        halfDay: monthlyAttendance.filter(a => a.status === 'half-day').length,
         totalHours: monthlyAttendance.reduce((sum, a) => sum + (a.totalHours || 0), 0)
       },
       recentAttendance

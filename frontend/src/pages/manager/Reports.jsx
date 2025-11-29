@@ -62,7 +62,6 @@ const Reports = () => {
       case 'present': return 'bg-green-100 text-green-800';
       case 'late': return 'bg-yellow-100 text-yellow-800';
       case 'absent': return 'bg-red-100 text-red-800';
-      case 'half-day': return 'bg-orange-100 text-orange-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -73,7 +72,6 @@ const Reports = () => {
     present: allAttendance.filter(a => a.status === 'present').length,
     late: allAttendance.filter(a => a.status === 'late').length,
     absent: allAttendance.filter(a => a.status === 'absent').length,
-    halfDay: allAttendance.filter(a => a.status === 'half-day').length,
     totalHours: allAttendance.reduce((sum, a) => sum + (a.totalHours || 0), 0),
   };
 
@@ -159,10 +157,6 @@ const Reports = () => {
           <div className="bg-white rounded-xl shadow-sm p-4 text-center">
             <p className="text-2xl font-bold text-red-600">{summary.absent}</p>
             <p className="text-gray-500 text-sm">Absent</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-4 text-center">
-            <p className="text-2xl font-bold text-orange-600">{summary.halfDay}</p>
-            <p className="text-gray-500 text-sm">Half Day</p>
           </div>
           <div className="bg-white rounded-xl shadow-sm p-4 text-center">
             <p className="text-2xl font-bold text-blue-600">{summary.totalHours.toFixed(1)}</p>

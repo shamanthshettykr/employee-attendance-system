@@ -38,7 +38,6 @@ const AllAttendance = () => {
       case 'present': return 'bg-green-100 text-green-800';
       case 'late': return 'bg-yellow-100 text-yellow-800';
       case 'absent': return 'bg-red-100 text-red-800';
-      case 'half-day': return 'bg-orange-100 text-orange-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -86,7 +85,6 @@ const AllAttendance = () => {
               <option value="present">Present</option>
               <option value="late">Late</option>
               <option value="absent">Absent</option>
-              <option value="half-day">Half Day</option>
             </select>
           </div>
           <div>

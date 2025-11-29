@@ -140,7 +140,6 @@ const Attendance = () => {
             <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
               todayStatus.status === 'present' ? 'bg-green-100 text-green-800' :
               todayStatus.status === 'late' ? 'bg-yellow-100 text-yellow-800' :
-              todayStatus.status === 'half-day' ? 'bg-orange-100 text-orange-800' :
               'bg-gray-100 text-gray-800'
             }`}>
               Status: {todayStatus.status.charAt(0).toUpperCase() + todayStatus.status.slice(1)}

@@ -20,7 +20,7 @@ const attendanceSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['present', 'absent', 'late', 'half-day'],
+    enum: ['present', 'absent', 'late'],
     default: 'present'
   },
   totalHours: {
@@ -47,25 +47,35 @@ attendanceSchema.methods.calculateTotalHours = function() {
 };
 
 // Determine status based on check-in time
+// Check-in must be on or before 9:00 AM to be "present", otherwise "late"
 attendanceSchema.methods.determineStatus = function() {
   if (!this.checkInTime) {
     return 'absent';
   }
-  
+
   const officeStartTime = process.env.OFFICE_START_TIME || '09:00';
-  const lateThreshold = parseInt(process.env.LATE_THRESHOLD_MINUTES) || 15;
-  
+
   const [hours, minutes] = officeStartTime.split(':').map(Number);
   const officeStart = new Date(this.checkInTime);
   officeStart.setHours(hours, minutes, 0, 0);
-  
-  const lateTime = new Date(officeStart.getTime() + lateThreshold * 60 * 1000);
-  
-  if (this.checkInTime > lateTime) {
+
+  // If check-in is after 9:00 AM, mark as late
+  if (this.checkInTime > officeStart) {
     return 'late';
   }
-  
+
   return 'present';
+};
+
+// Check if check-out time is valid (on or after 6:00 PM)
+attendanceSchema.methods.isValidCheckOutTime = function(checkOutTime) {
+  const officeEndTime = process.env.OFFICE_END_TIME || '18:00';
+
+  const [hours, minutes] = officeEndTime.split(':').map(Number);
+  const officeEnd = new Date(checkOutTime);
+  officeEnd.setHours(hours, minutes, 0, 0);
+
+  return checkOutTime >= officeEnd;
 };
 
 // Static method to get today's date (start of day)

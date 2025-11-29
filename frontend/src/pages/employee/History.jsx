@@ -33,7 +33,6 @@ const History = () => {
       case 'present': return 'attendance-present';
       case 'late': return 'attendance-late';
       case 'absent': return 'attendance-absent';
-      case 'half-day': return 'attendance-half-day';
       default: return '';
     }
   };
@@ -62,10 +61,6 @@ const History = () => {
           <p className="text-gray-500 text-sm">Late</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-4 text-center">
-          <p className="text-2xl font-bold text-orange-600">{mySummary?.halfDay || 0}</p>
-          <p className="text-gray-500 text-sm">Half Day</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 text-center">
           <p className="text-2xl font-bold text-blue-600">{mySummary?.totalHours?.toFixed(1) || 0}</p>
           <p className="text-gray-500 text-sm">Total Hours</p>
         </div>
@@ -85,10 +80,6 @@ const History = () => {
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-red-200"></div>
             <span className="text-sm text-gray-600">Absent</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-orange-200"></div>
-            <span className="text-sm text-gray-600">Half Day</span>
           </div>
         </div>
       </div>

@@ -86,14 +86,19 @@ exports.checkOut = async (req, res) => {
       });
     }
 
-    attendance.checkOutTime = new Date();
-    attendance.calculateTotalHours();
-    
-    // Update status to half-day if total hours < 4
-    if (attendance.totalHours < 4) {
-      attendance.status = 'half-day';
+    const checkOutTime = new Date();
+
+    // Validate check-out time (must be on or after 6:00 PM)
+    if (!attendance.isValidCheckOutTime(checkOutTime)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Check-out time must be on or after 6:00 PM'
+      });
     }
-    
+
+    attendance.checkOutTime = checkOutTime;
+    attendance.calculateTotalHours();
+
     await attendance.save();
 
     res.status(200).json({
@@ -166,7 +171,6 @@ exports.getMySummary = async (req, res) => {
       present: attendance.filter(a => a.status === 'present').length,
       absent: attendance.filter(a => a.status === 'absent').length,
       late: attendance.filter(a => a.status === 'late').length,
-      halfDay: attendance.filter(a => a.status === 'half-day').length,
       totalHours: attendance.reduce((sum, a) => sum + (a.totalHours || 0), 0),
       totalDays: attendance.length
     };
@@ -329,7 +333,6 @@ exports.getTeamSummary = async (req, res) => {
       present: attendance.filter(a => a.status === 'present').length,
       absent: attendance.filter(a => a.status === 'absent').length,
       late: attendance.filter(a => a.status === 'late').length,
-      halfDay: attendance.filter(a => a.status === 'half-day').length,
       totalHours: attendance.reduce((sum, a) => sum + (a.totalHours || 0), 0)
     };
 
