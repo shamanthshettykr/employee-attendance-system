@@ -1,0 +1,7 @@
+# Exclude from language statistics
+package-lock.json linguist-generated=true
+*.lock linguist-generated=true
+
+# Mark as documentation (won't count in stats)
+*.md linguist-documentation=true
+
