@@ -1,175 +1,132 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getEmployeeStats } from '../../store/slices/dashboardSlice';
 import { checkIn, checkOut, getTodayStatus } from '../../store/slices/attendanceSlice';
 import { toast } from 'react-toastify';
-import { FiClock, FiCalendar, FiCheckCircle, FiXCircle, FiAlertCircle } from 'react-icons/fi';
+import { FiClock, FiCheckCircle, FiXCircle, FiAlertCircle, FiLogIn, FiLogOut, FiTrendingUp, FiCalendar, FiArrowRight } from 'react-icons/fi';
 import { format } from 'date-fns';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
   const { employeeStats, isLoading } = useSelector((state) => state.dashboard);
-  const { todayStatus, isLoading: attendanceLoading } = useSelector((state) => state.attendance);
+  const { isLoading: attendanceLoading } = useSelector((state) => state.attendance);
   const { user } = useSelector((state) => state.auth);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  useEffect(() => {
-    dispatch(getEmployeeStats());
-    dispatch(getTodayStatus());
-  }, [dispatch]);
+  useEffect(() => { dispatch(getEmployeeStats()); dispatch(getTodayStatus()); }, [dispatch]);
+  useEffect(() => { const timer = setInterval(() => setCurrentTime(new Date()), 1000); return () => clearInterval(timer); }, []);
 
-  const handleCheckIn = async () => {
-    try {
-      await dispatch(checkIn()).unwrap();
-      toast.success('Checked in successfully!');
-      dispatch(getEmployeeStats());
-    } catch (error) {
-      toast.error(error);
-    }
-  };
+  const handleCheckIn = async () => { try { await dispatch(checkIn()).unwrap(); toast.success('Checked in successfully!'); dispatch(getEmployeeStats()); } catch (error) { toast.error(error); } };
+  const handleCheckOut = async () => { try { await dispatch(checkOut()).unwrap(); toast.success('Checked out successfully!'); dispatch(getEmployeeStats()); } catch (error) { toast.error(error); } };
 
-  const handleCheckOut = async () => {
-    try {
-      await dispatch(checkOut()).unwrap();
-      toast.success('Checked out successfully!');
-      dispatch(getEmployeeStats());
-    } catch (error) {
-      toast.error(error);
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'present': return 'bg-green-100 text-green-800';
-      case 'late': return 'bg-yellow-100 text-yellow-800';
-      case 'absent': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  if (isLoading) {
-    return <div className="flex items-center justify-center h-64"><span className="text-gray-500">Loading...</span></div>;
-  }
+  if (isLoading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+    </div>
+  );
 
   const stats = employeeStats;
+  const statusConfig = {
+    'checked-in': { bg: 'bg-success-50', text: 'text-success-700', dot: 'bg-success-500', label: 'Currently Working', icon: 'bg-success-500' },
+    'checked-out': { bg: 'bg-primary-50', text: 'text-primary-700', dot: 'bg-primary-500', label: 'Day Complete', icon: 'bg-primary-500' },
+    'not-checked-in': { bg: 'bg-dark-100', text: 'text-dark-600', dot: 'bg-dark-400', label: 'Not Checked In', icon: 'bg-dark-400' }
+  };
+  const currentStatus = statusConfig[stats?.today?.status] || statusConfig['not-checked-in'];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 animate-fade-in">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Welcome, {user?.name}!</h1>
-          <p className="text-gray-500">{format(new Date(), 'EEEE, MMMM d, yyyy')}</p>
+          <h1 className="text-2xl font-bold text-dark-900">Good {currentTime.getHours() < 12 ? 'Morning' : currentTime.getHours() < 17 ? 'Afternoon' : 'Evening'}, {user?.name?.split(' ')[0]}!</h1>
+          <p className="text-dark-500 mt-1">{format(currentTime, 'EEEE, MMMM d, yyyy')}</p>
+        </div>
+        <div className="flex items-center gap-3 px-5 py-3 bg-white rounded-2xl border border-dark-200">
+          <FiClock className="text-primary-600 text-xl" />
+          <span className="text-2xl font-bold text-dark-900 tabular-nums">{format(currentTime, 'hh:mm:ss')}</span>
+          <span className="text-dark-400 text-sm">{format(currentTime, 'a')}</span>
         </div>
       </div>
 
-      {/* Quick Check In/Out */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Today's Attendance</h2>
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className={`px-4 py-2 rounded-full ${
-              stats?.today?.status === 'checked-in' ? 'bg-green-100 text-green-800' :
-              stats?.today?.status === 'checked-out' ? 'bg-blue-100 text-blue-800' :
-              'bg-gray-100 text-gray-800'
-            }`}>
-              {stats?.today?.status === 'checked-in' ? 'Checked In' :
-               stats?.today?.status === 'checked-out' ? 'Checked Out' : 'Not Checked In'}
+      {/* Today's Status Card */}
+      <div className="card p-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <div className={`w-16 h-16 rounded-2xl ${currentStatus.icon} flex items-center justify-center shadow-lg`}>
+              <FiClock className="text-white text-2xl" />
             </div>
-            {stats?.today?.checkInTime && (
-              <span className="text-gray-600">
-                In: {format(new Date(stats.today.checkInTime), 'hh:mm a')}
-              </span>
-            )}
-            {stats?.today?.checkOutTime && (
-              <span className="text-gray-600">
-                Out: {format(new Date(stats.today.checkOutTime), 'hh:mm a')}
-              </span>
-            )}
+            <div>
+              <p className="text-sm text-dark-500 mb-1">Today's Status</p>
+              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${currentStatus.bg} ${currentStatus.text}`}>
+                <span className={`w-2 h-2 rounded-full ${currentStatus.dot} ${stats?.today?.status === 'checked-in' ? 'animate-pulse' : ''}`}></span>
+                <span className="font-semibold text-sm">{currentStatus.label}</span>
+              </div>
+              <div className="flex items-center gap-5 mt-3">
+                {stats?.today?.checkInTime && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-7 h-7 rounded-lg bg-success-100 flex items-center justify-center"><FiLogIn className="text-success-600 text-sm" /></div>
+                    <span className="text-dark-600">{format(new Date(stats.today.checkInTime), 'hh:mm a')}</span>
+                  </div>
+                )}
+                {stats?.today?.checkOutTime && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-7 h-7 rounded-lg bg-danger-100 flex items-center justify-center"><FiLogOut className="text-danger-600 text-sm" /></div>
+                    <span className="text-dark-600">{format(new Date(stats.today.checkOutTime), 'hh:mm a')}</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
           <div className="flex gap-3">
             {stats?.today?.status === 'not-checked-in' && (
-              <button
-                onClick={handleCheckIn}
-                disabled={attendanceLoading}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-              >
-                <FiClock /> Check In
+              <button onClick={handleCheckIn} disabled={attendanceLoading} className="btn-success btn-lg group">
+                {attendanceLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <><FiLogIn /><span>Check In</span><FiArrowRight className="group-hover:translate-x-1 transition-transform" /></>}
               </button>
             )}
             {stats?.today?.status === 'checked-in' && (
-              <button
-                onClick={handleCheckOut}
-                disabled={attendanceLoading}
-                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-              >
-                <FiClock /> Check Out
+              <button onClick={handleCheckOut} disabled={attendanceLoading} className="btn-danger btn-lg group">
+                {attendanceLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <><FiLogOut /><span>Check Out</span><FiArrowRight className="group-hover:translate-x-1 transition-transform" /></>}
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Monthly Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-green-100 rounded-lg"><FiCheckCircle className="text-green-600 text-xl" /></div>
-            <div>
-              <p className="text-2xl font-bold text-gray-800">{stats?.monthly?.present || 0}</p>
-              <p className="text-gray-500 text-sm">Present</p>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'Present Days', value: stats?.monthly?.present || 0, icon: FiCheckCircle, color: 'success' },
+          { label: 'Absent Days', value: stats?.monthly?.absent || 0, icon: FiXCircle, color: 'danger' },
+          { label: 'Late Arrivals', value: stats?.monthly?.late || 0, icon: FiAlertCircle, color: 'warning' },
+          { label: 'Total Hours', value: stats?.monthly?.totalHours?.toFixed(1) || 0, icon: FiTrendingUp, color: 'primary' },
+        ].map((stat, i) => (
+          <div key={stat.label} className="stat-card" style={{ animationDelay: `${i * 0.05}s` }}>
+            <div className="flex items-start justify-between mb-4">
+              <div className={`icon-container icon-container-${stat.color}`}><stat.icon size={20} /></div>
             </div>
+            <p className="text-3xl font-bold text-dark-900 mb-1">{stat.value}</p>
+            <p className="text-sm text-dark-500">{stat.label}</p>
           </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-red-100 rounded-lg"><FiXCircle className="text-red-600 text-xl" /></div>
-            <div>
-              <p className="text-2xl font-bold text-gray-800">{stats?.monthly?.absent || 0}</p>
-              <p className="text-gray-500 text-sm">Absent</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-yellow-100 rounded-lg"><FiAlertCircle className="text-yellow-600 text-xl" /></div>
-            <div>
-              <p className="text-2xl font-bold text-gray-800">{stats?.monthly?.late || 0}</p>
-              <p className="text-gray-500 text-sm">Late</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-100 rounded-lg"><FiClock className="text-blue-600 text-xl" /></div>
-            <div>
-              <p className="text-2xl font-bold text-gray-800">{stats?.monthly?.totalHours?.toFixed(1) || 0}</p>
-              <p className="text-gray-500 text-sm">Hours</p>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Recent Attendance */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Attendance (Last 7 Days)</h2>
+      <div className="card overflow-hidden">
+        <div className="flex items-center justify-between p-6 border-b border-dark-100">
+          <h2 className="text-lg font-semibold text-dark-900">Recent Attendance</h2>
+          <span className="badge badge-primary">Last 7 days</span>
+        </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="text-left text-gray-500 text-sm border-b">
-                <th className="pb-3">Date</th>
-                <th className="pb-3">Check In</th>
-                <th className="pb-3">Check Out</th>
-                <th className="pb-3">Status</th>
-                <th className="pb-3">Hours</th>
-              </tr>
-            </thead>
+          <table className="table">
+            <thead><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Hours</th></tr></thead>
             <tbody>
-              {stats?.recentAttendance?.map((record) => (
-                <tr key={record._id} className="border-b last:border-0">
-                  <td className="py-3">{format(new Date(record.date), 'MMM d, yyyy')}</td>
-                  <td className="py-3">{record.checkInTime ? format(new Date(record.checkInTime), 'hh:mm a') : '-'}</td>
-                  <td className="py-3">{record.checkOutTime ? format(new Date(record.checkOutTime), 'hh:mm a') : '-'}</td>
-                  <td className="py-3"><span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(record.status)}`}>{record.status}</span></td>
-                  <td className="py-3">{record.totalHours?.toFixed(1) || 0}h</td>
+              {stats?.recentAttendance?.map((record, i) => (
+                <tr key={record._id} style={{ animationDelay: `${i * 0.03}s` }}>
+                  <td className="font-medium text-dark-900">{format(new Date(record.date), 'EEE, MMM d')}</td>
+                  <td>{record.checkInTime ? format(new Date(record.checkInTime), 'hh:mm a') : '—'}</td>
+                  <td>{record.checkOutTime ? format(new Date(record.checkOutTime), 'hh:mm a') : '—'}</td>
+                  <td><span className={`badge badge-${record.status === 'present' ? 'present' : record.status === 'late' ? 'late' : 'absent'}`}>{record.status}</span></td>
+                  <td className="font-medium">{record.totalHours?.toFixed(1) || 0}h</td>
                 </tr>
               ))}
             </tbody>

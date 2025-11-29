@@ -377,16 +377,49 @@ exports.exportAttendance = async (req, res) => {
       .populate('userId', 'name email employeeId department')
       .sort({ date: -1 });
 
-    // Generate CSV
+    // Helper function to format date as MM/DD/YYYY (Excel-friendly)
+    const formatDate = (date) => {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${month}/${day}/${year}`;
+    };
+
+    // Helper function to format time as HH:MM AM/PM
+    const formatTime = (date) => {
+      if (!date) return 'N/A';
+      const d = new Date(date);
+      let hours = d.getHours();
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      return `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
+    };
+
+    // Generate CSV with proper quoting and tab prefix to prevent Excel auto-formatting
     const headers = 'Employee ID,Name,Email,Department,Date,Check In,Check Out,Status,Total Hours\n';
     const rows = attendance.map(a => {
       const user = a.userId;
-      return `${user.employeeId},${user.name},${user.email},${user.department},${a.date.toISOString().split('T')[0]},${a.checkInTime ? new Date(a.checkInTime).toLocaleTimeString() : 'N/A'},${a.checkOutTime ? new Date(a.checkOutTime).toLocaleTimeString() : 'N/A'},${a.status},${a.totalHours}`;
+      return [
+        user.employeeId,
+        `"${user.name}"`,
+        user.email,
+        `"${user.department}"`,
+        `"${formatDate(a.date)}"`,
+        `"${formatTime(a.checkInTime)}"`,
+        `"${formatTime(a.checkOutTime)}"`,
+        a.status,
+        a.totalHours?.toFixed(2) || '0'
+      ].join(',');
     }).join('\n');
 
-    const csv = headers + rows;
+    // Add BOM for Excel UTF-8 compatibility
+    const BOM = '\uFEFF';
+    const csv = BOM + headers + rows;
 
-    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename=attendance_report.csv');
     res.status(200).send(csv);
   } catch (error) {

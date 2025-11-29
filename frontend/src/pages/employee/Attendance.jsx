@@ -1,148 +1,90 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkIn, checkOut, getTodayStatus } from '../../store/slices/attendanceSlice';
 import { toast } from 'react-toastify';
-import { FiClock, FiLogIn, FiLogOut } from 'react-icons/fi';
+import { FiClock, FiLogIn, FiLogOut, FiCheckCircle, FiArrowRight } from 'react-icons/fi';
 import { format } from 'date-fns';
 
 const Attendance = () => {
   const dispatch = useDispatch();
   const { todayStatus, isLoading } = useSelector((state) => state.attendance);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  useEffect(() => {
-    dispatch(getTodayStatus());
-  }, [dispatch]);
+  useEffect(() => { dispatch(getTodayStatus()); }, [dispatch]);
+  useEffect(() => { const timer = setInterval(() => setCurrentTime(new Date()), 1000); return () => clearInterval(timer); }, []);
 
-  const handleCheckIn = async () => {
-    try {
-      await dispatch(checkIn()).unwrap();
-      toast.success('Checked in successfully!');
-    } catch (error) {
-      toast.error(error);
-    }
-  };
-
-  const handleCheckOut = async () => {
-    try {
-      await dispatch(checkOut()).unwrap();
-      toast.success('Checked out successfully!');
-    } catch (error) {
-      toast.error(error);
-    }
-  };
+  const handleCheckIn = async () => { try { await dispatch(checkIn()).unwrap(); toast.success('Checked in successfully!'); } catch (error) { toast.error(error); } };
+  const handleCheckOut = async () => { try { await dispatch(checkOut()).unwrap(); toast.success('Checked out successfully!'); } catch (error) { toast.error(error); } };
 
   const isCheckedIn = todayStatus?.checkInTime && !todayStatus?.checkOutTime;
   const isCheckedOut = todayStatus?.checkInTime && todayStatus?.checkOutTime;
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Mark Attendance</h1>
-
-      <div className="bg-white rounded-xl shadow-sm p-8">
-        {/* Current Time */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 text-gray-600 mb-2">
-            <FiClock size={20} />
-            <span>{format(new Date(), 'EEEE, MMMM d, yyyy')}</span>
-          </div>
-          <p className="text-5xl font-bold text-gray-800">
-            {format(new Date(), 'hh:mm a')}
-          </p>
+    <div className="max-w-xl mx-auto animate-fade-in">
+      {/* Time Display Card */}
+      <div className="card p-8 text-center mb-6">
+        <p className="text-dark-500 mb-2">{format(currentTime, 'EEEE, MMMM d, yyyy')}</p>
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-6xl font-bold text-dark-900 tabular-nums">{format(currentTime, 'hh:mm:ss')}</span>
+          <span className="text-2xl text-dark-400 self-end mb-2">{format(currentTime, 'a')}</span>
         </div>
+      </div>
 
-        {/* Status Card */}
-        <div className="bg-gray-50 rounded-xl p-6 mb-8">
-          <h3 className="text-gray-600 mb-4 text-center">Today's Status</h3>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <p className="text-sm text-gray-500">Check In</p>
-              <p className="text-lg font-semibold text-gray-800">
-                {todayStatus?.checkInTime ? format(new Date(todayStatus.checkInTime), 'hh:mm a') : '--:--'}
-              </p>
+      {/* Status Card */}
+      <div className="card p-6 mb-6">
+        <h3 className="text-sm font-semibold text-dark-500 uppercase tracking-wider mb-5 text-center">Today's Summary</h3>
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: 'Check In', value: todayStatus?.checkInTime ? format(new Date(todayStatus.checkInTime), 'hh:mm a') : '--:--', icon: FiLogIn, color: 'success' },
+            { label: 'Check Out', value: todayStatus?.checkOutTime ? format(new Date(todayStatus.checkOutTime), 'hh:mm a') : '--:--', icon: FiLogOut, color: 'danger' },
+            { label: 'Total Hours', value: todayStatus?.totalHours ? `${todayStatus.totalHours.toFixed(1)}h` : '0h', icon: FiClock, color: 'primary' },
+          ].map((item, i) => (
+            <div key={i} className="text-center p-4 bg-dark-50 rounded-2xl">
+              <div className={`icon-container icon-container-${item.color} mx-auto mb-3`}><item.icon size={18} /></div>
+              <p className="text-xs text-dark-400 mb-1">{item.label}</p>
+              <p className="text-lg font-bold text-dark-900">{item.value}</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Check Out</p>
-              <p className="text-lg font-semibold text-gray-800">
-                {todayStatus?.checkOutTime ? format(new Date(todayStatus.checkOutTime), 'hh:mm a') : '--:--'}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Total Hours</p>
-              <p className="text-lg font-semibold text-gray-800">
-                {todayStatus?.totalHours ? `${todayStatus.totalHours.toFixed(1)}h` : '0h'}
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
+      </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col gap-4">
-          {!isCheckedIn && !isCheckedOut && (
-            <button
-              onClick={handleCheckIn}
-              disabled={isLoading}
-              className="w-full py-4 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-3 text-lg disabled:opacity-50"
-            >
-              <FiLogIn size={24} />
-              Check In
+      {/* Action Area */}
+      <div className="card p-6">
+        {!isCheckedIn && !isCheckedOut && (
+          <button onClick={handleCheckIn} disabled={isLoading} className="btn-success w-full btn-lg group">
+            {isLoading ? <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <><FiLogIn size={22} /><span>Check In Now</span><FiArrowRight className="group-hover:translate-x-1 transition-transform" /></>}
+          </button>
+        )}
+
+        {isCheckedIn && (
+          <div className="space-y-4">
+            <div className="text-center p-5 bg-success-50 rounded-2xl border border-success-200">
+              <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-success-500 flex items-center justify-center"><FiCheckCircle className="text-white text-2xl" /></div>
+              <p className="text-success-700 font-semibold">Currently Working</p>
+              <p className="text-success-600 text-sm mt-1">Since {format(new Date(todayStatus.checkInTime), 'hh:mm a')}</p>
+            </div>
+            <button onClick={handleCheckOut} disabled={isLoading} className="btn-danger w-full btn-lg group">
+              {isLoading ? <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <><FiLogOut size={22} /><span>Check Out</span><FiArrowRight className="group-hover:translate-x-1 transition-transform" /></>}
             </button>
-          )}
+          </div>
+        )}
 
-          {isCheckedIn && (
-            <>
-              <div className="text-center p-4 bg-green-50 rounded-xl">
-                <p className="text-green-600 font-semibold">You are currently checked in</p>
-                <p className="text-green-500 text-sm">
-                  Since {format(new Date(todayStatus.checkInTime), 'hh:mm a')}
-                </p>
-              </div>
-              <button
-                onClick={handleCheckOut}
-                disabled={isLoading}
-                className="w-full py-4 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors flex items-center justify-center gap-3 text-lg disabled:opacity-50"
-              >
-                <FiLogOut size={24} />
-                Check Out
-              </button>
-            </>
-          )}
-
-          {isCheckedOut && (
-            <div className="text-center p-6 bg-blue-50 rounded-xl">
-              <p className="text-blue-600 font-semibold text-lg mb-2">
-                You have completed your attendance for today!
-              </p>
-              <div className="flex justify-center gap-8 mt-4">
-                <div>
-                  <p className="text-sm text-gray-500">Check In</p>
-                  <p className="font-semibold text-gray-800">
-                    {format(new Date(todayStatus.checkInTime), 'hh:mm a')}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Check Out</p>
-                  <p className="font-semibold text-gray-800">
-                    {format(new Date(todayStatus.checkOutTime), 'hh:mm a')}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Total</p>
-                  <p className="font-semibold text-gray-800">{todayStatus.totalHours?.toFixed(1)}h</p>
-                </div>
-              </div>
+        {isCheckedOut && (
+          <div className="text-center p-6 bg-primary-50 rounded-2xl border border-primary-200">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary-600 flex items-center justify-center"><FiCheckCircle className="text-white text-3xl" /></div>
+            <p className="text-dark-900 font-semibold text-lg mb-4">Day Complete!</p>
+            <div className="flex justify-center gap-8">
+              <div><p className="text-xs text-dark-400 mb-1">Check In</p><p className="font-bold text-dark-900">{format(new Date(todayStatus.checkInTime), 'hh:mm a')}</p></div>
+              <div><p className="text-xs text-dark-400 mb-1">Check Out</p><p className="font-bold text-dark-900">{format(new Date(todayStatus.checkOutTime), 'hh:mm a')}</p></div>
+              <div><p className="text-xs text-dark-400 mb-1">Total</p><p className="font-bold text-primary-600">{todayStatus.totalHours?.toFixed(1)}h</p></div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Status Badge */}
         {todayStatus?.status && todayStatus.status !== 'not-checked-in' && (
-          <div className="mt-6 text-center">
-            <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
-              todayStatus.status === 'present' ? 'bg-green-100 text-green-800' :
-              todayStatus.status === 'late' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-gray-100 text-gray-800'
-            }`}>
-              Status: {todayStatus.status.charAt(0).toUpperCase() + todayStatus.status.slice(1)}
+          <div className="mt-5 text-center">
+            <span className={`badge badge-${todayStatus.status === 'present' ? 'present' : todayStatus.status === 'late' ? 'late' : 'absent'}`}>
+              {todayStatus.status.charAt(0).toUpperCase() + todayStatus.status.slice(1)}
             </span>
           </div>
         )}

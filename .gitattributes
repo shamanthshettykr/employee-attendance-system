@@ -5,3 +5,10 @@ package-lock.json linguist-generated=true
 # Mark as documentation (won't count in stats)
 *.md linguist-documentation=true
 
+# Ensure proper language detection
+*.js linguist-language=JavaScript
+*.jsx linguist-language=JavaScript
+*.css linguist-language=CSS
+*.html linguist-language=HTML
+*.json linguist-language=JSON
+

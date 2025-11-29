@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getMyHistory, getMySummary } from '../../store/slices/attendanceSlice';
 import Calendar from 'react-calendar';
 import { format } from 'date-fns';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiCheckCircle, FiXCircle, FiAlertCircle, FiClock, FiCalendar, FiLogIn, FiLogOut } from 'react-icons/fi';
 import 'react-calendar/dist/Calendar.css';
 
 const History = () => {
@@ -19,136 +19,85 @@ const History = () => {
     dispatch(getMySummary({ month, year }));
   }, [dispatch, currentMonth]);
 
-  const getAttendanceForDate = (date) => {
-    return myHistory.find(
-      (a) => format(new Date(a.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
-    );
-  };
+  const getAttendanceForDate = (date) => myHistory.find((a) => format(new Date(a.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd'));
+  const getTileClassName = ({ date }) => { const a = getAttendanceForDate(date); return a ? `attendance-${a.status}` : ''; };
+  const handleDateClick = (date) => setSelectedDate(getAttendanceForDate(date) || null);
 
-  const getTileClassName = ({ date }) => {
-    const attendance = getAttendanceForDate(date);
-    if (!attendance) return '';
-    
-    switch (attendance.status) {
-      case 'present': return 'attendance-present';
-      case 'late': return 'attendance-late';
-      case 'absent': return 'attendance-absent';
-      default: return '';
-    }
-  };
-
-  const handleDateClick = (date) => {
-    const attendance = getAttendanceForDate(date);
-    setSelectedDate(attendance || null);
-  };
+  const stats = [
+    { label: 'Present', value: mySummary?.present || 0, icon: FiCheckCircle, color: 'success' },
+    { label: 'Absent', value: mySummary?.absent || 0, icon: FiXCircle, color: 'danger' },
+    { label: 'Late', value: mySummary?.late || 0, icon: FiAlertCircle, color: 'warning' },
+    { label: 'Total Hours', value: mySummary?.totalHours?.toFixed(1) || 0, icon: FiClock, color: 'primary' },
+  ];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">My Attendance History</h1>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-dark-900">Attendance History</h1>
+        <span className="text-sm text-dark-400">{format(currentMonth, 'MMMM yyyy')}</span>
+      </div>
 
       {/* Monthly Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-white rounded-xl shadow-sm p-4 text-center">
-          <p className="text-2xl font-bold text-green-600">{mySummary?.present || 0}</p>
-          <p className="text-gray-500 text-sm">Present</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 text-center">
-          <p className="text-2xl font-bold text-red-600">{mySummary?.absent || 0}</p>
-          <p className="text-gray-500 text-sm">Absent</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 text-center">
-          <p className="text-2xl font-bold text-yellow-600">{mySummary?.late || 0}</p>
-          <p className="text-gray-500 text-sm">Late</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-4 text-center">
-          <p className="text-2xl font-bold text-blue-600">{mySummary?.totalHours?.toFixed(1) || 0}</p>
-          <p className="text-gray-500 text-sm">Total Hours</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat, i) => (
+          <div key={stat.label} className="stat-card" style={{ animationDelay: `${i * 0.05}s` }}>
+            <div className="flex items-center gap-4">
+              <div className={`icon-container icon-container-${stat.color}`}><stat.icon size={20} /></div>
+              <div><p className="text-2xl font-bold text-dark-900">{stat.value}</p><p className="text-dark-500 text-sm">{stat.label}</p></div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Legend */}
+      <div className="card p-4">
+        <div className="flex flex-wrap gap-6 justify-center">
+          {[{ label: 'Present', color: 'bg-success-500' }, { label: 'Late', color: 'bg-warning-500' }, { label: 'Absent', color: 'bg-danger-500' }].map((item) => (
+            <div key={item.label} className="flex items-center gap-2"><div className={`w-3 h-3 rounded-full ${item.color}`}></div><span className="text-sm text-dark-600 font-medium">{item.label}</span></div>
+          ))}
         </div>
       </div>
 
-      {/* Color Legend */}
-      <div className="bg-white rounded-xl shadow-sm p-4">
-        <div className="flex flex-wrap gap-4 justify-center">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-green-200"></div>
-            <span className="text-sm text-gray-600">Present</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-yellow-200"></div>
-            <span className="text-sm text-gray-600">Late</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-red-200"></div>
-            <span className="text-sm text-gray-600">Absent</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-6">
         {/* Calendar */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <button
-              onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))}
-              className="p-2 hover:bg-gray-100 rounded-lg"
-            >
-              <FiChevronLeft />
-            </button>
-            <h2 className="text-lg font-semibold">{format(currentMonth, 'MMMM yyyy')}</h2>
-            <button
-              onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))}
-              className="p-2 hover:bg-gray-100 rounded-lg"
-            >
-              <FiChevronRight />
-            </button>
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-6">
+            <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))} className="p-2 hover:bg-dark-100 rounded-xl transition-colors"><FiChevronLeft className="text-dark-600" /></button>
+            <h2 className="text-lg font-semibold text-dark-900 flex items-center gap-2"><FiCalendar className="text-primary-600" />{format(currentMonth, 'MMMM yyyy')}</h2>
+            <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))} className="p-2 hover:bg-dark-100 rounded-xl transition-colors"><FiChevronRight className="text-dark-600" /></button>
           </div>
-          <Calendar
-            value={currentMonth}
-            onClickDay={handleDateClick}
-            tileClassName={getTileClassName}
-            showNavigation={false}
-          />
+          <Calendar value={currentMonth} onClickDay={handleDateClick} tileClassName={getTileClassName} showNavigation={false} />
         </div>
 
-        {/* Selected Date Details */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Attendance Details</h2>
+        {/* Details */}
+        <div className="card p-6">
+          <h2 className="text-lg font-semibold text-dark-900 mb-6">Attendance Details</h2>
           {selectedDate ? (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Date</span>
-                <span className="font-medium">{format(new Date(selectedDate.date), 'MMMM d, yyyy')}</span>
+            <div className="space-y-3">
+              {[
+                { label: 'Date', value: format(new Date(selectedDate.date), 'MMMM d, yyyy'), icon: FiCalendar, color: 'primary' },
+                { label: 'Check In', value: selectedDate.checkInTime ? format(new Date(selectedDate.checkInTime), 'hh:mm a') : 'N/A', icon: FiLogIn, color: 'success' },
+                { label: 'Check Out', value: selectedDate.checkOutTime ? format(new Date(selectedDate.checkOutTime), 'hh:mm a') : 'N/A', icon: FiLogOut, color: 'danger' },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center justify-between p-4 bg-dark-50 rounded-xl">
+                  <div className="flex items-center gap-3"><div className={`icon-container-sm icon-container-${item.color}`}><item.icon size={16} /></div><span className="text-dark-600">{item.label}</span></div>
+                  <span className="font-semibold text-dark-900">{item.value}</span>
+                </div>
+              ))}
+              <div className="flex items-center justify-between p-4 bg-dark-50 rounded-xl">
+                <span className="text-dark-600">Status</span>
+                <span className={`badge badge-${selectedDate.status}`}>{selectedDate.status}</span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Check In</span>
-                <span className="font-medium">
-                  {selectedDate.checkInTime ? format(new Date(selectedDate.checkInTime), 'hh:mm a') : 'N/A'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Check Out</span>
-                <span className="font-medium">
-                  {selectedDate.checkOutTime ? format(new Date(selectedDate.checkOutTime), 'hh:mm a') : 'N/A'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Status</span>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  selectedDate.status === 'present' ? 'bg-green-100 text-green-800' :
-                  selectedDate.status === 'late' ? 'bg-yellow-100 text-yellow-800' :
-                  selectedDate.status === 'absent' ? 'bg-red-100 text-red-800' :
-                  'bg-orange-100 text-orange-800'
-                }`}>
-                  {selectedDate.status}
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-2">
-                <span className="text-gray-600">Total Hours</span>
-                <span className="font-medium">{selectedDate.totalHours?.toFixed(1) || 0} hours</span>
+              <div className="flex items-center justify-between p-4 bg-dark-50 rounded-xl">
+                <div className="flex items-center gap-3"><div className="icon-container-sm icon-container-primary"><FiClock size={16} /></div><span className="text-dark-600">Total Hours</span></div>
+                <span className="font-bold text-primary-600 text-lg">{selectedDate.totalHours?.toFixed(1) || 0}h</span>
               </div>
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">Click on a date to see details</p>
+            <div className="empty-state py-12">
+              <div className="empty-state-icon"><FiCalendar size={28} /></div>
+              <p className="text-dark-500">Click on a date to see details</p>
+            </div>
           )}
         </div>
       </div>
