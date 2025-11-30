@@ -125,7 +125,7 @@ exports.getManagerStats = async (req, res) => {
       weeklyTrend.push({
         date: dayStart.toISOString().split('T')[0],
         day: dayStart.toLocaleDateString('en-US', { weekday: 'short' }),
-        present: dayAttendance.filter(a => a.status === 'present' || a.status === 'late' || a.status === 'half-day').length,
+        present: dayAttendance.filter(a => a.status === 'present').length,
         absent: totalEmployees - dayAttendance.length,
         late: dayAttendance.filter(a => a.status === 'late').length,
         halfDay: dayAttendance.filter(a => a.status === 'half-day').length

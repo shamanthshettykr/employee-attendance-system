@@ -75,15 +75,14 @@ attendanceSchema.methods.determineStatus = function() {
   return 'present';
 };
 
-// Check if check-out time is valid (on or after 6:00 PM)
+// Check if check-out time is valid (any time after check-in)
 attendanceSchema.methods.isValidCheckOutTime = function(checkOutTime) {
-  const officeEndTime = process.env.OFFICE_END_TIME || '18:00';
-
-  const [hours, minutes] = officeEndTime.split(':').map(Number);
-  const officeEnd = new Date(checkOutTime);
-  officeEnd.setHours(hours, minutes, 0, 0);
-
-  return checkOutTime >= officeEnd;
+  // Employee can checkout anytime after checking in
+  // Ensure checkInTime exists and checkOutTime is after it
+  if (!this.checkInTime) {
+    return false;
+  }
+  return new Date(checkOutTime) >= new Date(this.checkInTime);
 };
 
 // Static method to get today's date (start of day)

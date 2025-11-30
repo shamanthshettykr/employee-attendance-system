@@ -40,6 +40,22 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please provide a department'],
     enum: ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations']
   },
+  isApproved: {
+    type: Boolean,
+    default: false
+  },
+  isNewRegistration: {
+    type: Boolean,
+    default: true,
+    description: 'True for new registrations requiring approval, false for existing employees'
+  },
+  approvedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  approvedAt: {
+    type: Date
+  },
   createdAt: {
     type: Date,
     default: Date.now

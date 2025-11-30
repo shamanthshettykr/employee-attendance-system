@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const { register, login, getMe } = require('../controllers/authController');
-const { protect } = require('../middleware/auth');
+const { register, login, getMe, getPendingApprovals, approveUser, rejectUser } = require('../controllers/authController');
+const { protect, authorize } = require('../middleware/auth');
 
 // Validation rules
 const registerValidation = [
@@ -19,10 +19,17 @@ const loginValidation = [
   body('password').notEmpty().withMessage('Password is required')
 ];
 
-// Routes
+// Public Routes
 router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
+
+// Protected Routes
 router.get('/me', protect, getMe);
+
+// Manager Only Routes - Approval System
+router.get('/pending-approvals', protect, authorize('manager'), getPendingApprovals);
+router.put('/approve/:userId', protect, authorize('manager'), approveUser);
+router.delete('/reject/:userId', protect, authorize('manager'), rejectUser);
 
 module.exports = router;
 

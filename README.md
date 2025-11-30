@@ -13,6 +13,8 @@ A full-stack attendance tracking system with Employee and Manager roles, built w
 
 ### Manager Features
 - ✅ Login
+- ✅ Approve/Reject new employee registrations
+- ✅ View pending approval requests with badge notifications
 - ✅ View all employees attendance
 - ✅ Filter by employee, date, status, department
 - ✅ View team attendance summary
@@ -106,6 +108,9 @@ After running the seed script:
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
 - `GET /api/auth/me` - Get current user
+- `GET /api/auth/pending-approvals` - Get pending approvals (Manager only)
+- `PUT /api/auth/approve/:userId` - Approve user (Manager only)
+- `DELETE /api/auth/reject/:userId` - Reject user (Manager only)
 
 ### Attendance (Employee)
 - `POST /api/attendance/checkin` - Check in

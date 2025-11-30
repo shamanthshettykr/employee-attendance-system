@@ -14,7 +14,9 @@ const users = [
     password: 'password123',
     role: 'manager',
     employeeId: 'MGR001',
-    department: 'HR'
+    department: 'HR',
+    isApproved: true,
+    isNewRegistration: false
   },
   {
     name: 'John Smith',
@@ -22,7 +24,9 @@ const users = [
     password: 'password123',
     role: 'employee',
     employeeId: 'EMP001',
-    department: 'Engineering'
+    department: 'Engineering',
+    isApproved: true,
+    isNewRegistration: false
   },
   {
     name: 'Jane Doe',
@@ -30,7 +34,9 @@ const users = [
     password: 'password123',
     role: 'employee',
     employeeId: 'EMP002',
-    department: 'Marketing'
+    department: 'Marketing',
+    isApproved: true,
+    isNewRegistration: false
   },
   {
     name: 'Bob Wilson',
@@ -38,7 +44,9 @@ const users = [
     password: 'password123',
     role: 'employee',
     employeeId: 'EMP003',
-    department: 'Sales'
+    department: 'Sales',
+    isApproved: true,
+    isNewRegistration: false
   },
   {
     name: 'Alice Johnson',
@@ -46,7 +54,9 @@ const users = [
     password: 'password123',
     role: 'employee',
     employeeId: 'EMP004',
-    department: 'Engineering'
+    department: 'Engineering',
+    isApproved: true,
+    isNewRegistration: false
   },
   {
     name: 'Charlie Brown',
@@ -54,7 +64,9 @@ const users = [
     password: 'password123',
     role: 'employee',
     employeeId: 'EMP005',
-    department: 'Finance'
+    department: 'Finance',
+    isApproved: true,
+    isNewRegistration: false
   },
   // New demo employees with varied statuses
   {
@@ -63,7 +75,9 @@ const users = [
     password: 'password123',
     role: 'employee',
     employeeId: 'EMP006',
-    department: 'Engineering'
+    department: 'Engineering',
+    isApproved: true,
+    isNewRegistration: false
   },
   {
     name: 'Mike Thompson',
@@ -71,7 +85,9 @@ const users = [
     password: 'password123',
     role: 'employee',
     employeeId: 'EMP007',
-    department: 'Marketing'
+    department: 'Marketing',
+    isApproved: true,
+    isNewRegistration: false
   },
   {
     name: 'Emily Chen',
@@ -79,7 +95,9 @@ const users = [
     password: 'password123',
     role: 'employee',
     employeeId: 'EMP008',
-    department: 'Sales'
+    department: 'Sales',
+    isApproved: true,
+    isNewRegistration: false
   },
   {
     name: 'David Kumar',
@@ -87,7 +105,9 @@ const users = [
     password: 'password123',
     role: 'employee',
     employeeId: 'EMP009',
-    department: 'Finance'
+    department: 'Finance',
+    isApproved: true,
+    isNewRegistration: false
   },
   {
     name: 'Lisa Wang',
@@ -95,7 +115,9 @@ const users = [
     password: 'password123',
     role: 'employee',
     employeeId: 'EMP010',
-    department: 'HR'
+    department: 'HR',
+    isApproved: true,
+    isNewRegistration: false
   },
   {
     name: 'Ryan Patel',
@@ -103,7 +125,9 @@ const users = [
     password: 'password123',
     role: 'employee',
     employeeId: 'EMP011',
-    department: 'Operations'
+    department: 'Operations',
+    isApproved: true,
+    isNewRegistration: false
   },
   {
     name: 'Jessica Lee',
@@ -111,7 +135,9 @@ const users = [
     password: 'password123',
     role: 'employee',
     employeeId: 'EMP012',
-    department: 'Engineering'
+    department: 'Engineering',
+    isApproved: true,
+    isNewRegistration: false
   }
 ];
 

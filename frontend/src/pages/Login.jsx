@@ -11,15 +11,21 @@ const Login = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth);
+  const { user, isLoading, isError, isSuccess, message, pendingApproval } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (isError) toast.error(message);
+    if (isError) {
+      if (pendingApproval) {
+        toast.warning(message || 'Your account is pending manager approval.');
+      } else {
+        toast.error(message);
+      }
+    }
     if (isSuccess || user) {
       navigate(user?.role === 'manager' ? '/manager/dashboard' : '/employee/dashboard');
     }
     dispatch(reset());
-  }, [user, isError, isSuccess, message, navigate, dispatch]);
+  }, [user, isError, isSuccess, message, pendingApproval, navigate, dispatch]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleSubmit = (e) => { e.preventDefault(); dispatch(login(formData)); };
@@ -99,7 +105,7 @@ const Login = () => {
               <div>
                 <label className="label">Email</label>
                 <div className="relative">
-                  <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${focusedField === 'email' ? 'text-primary-400' : 'text-white/40'}`}>
+                  <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-none ${focusedField === 'email' ? 'text-primary-400' : 'text-white/40'}`}>
                     <FiMail className="text-lg" />
                   </div>
                   <input type="email" name="email" value={formData.email} onChange={handleChange}
@@ -111,7 +117,7 @@ const Login = () => {
               <div>
                 <label className="label">Password</label>
                 <div className="relative">
-                  <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${focusedField === 'password' ? 'text-primary-400' : 'text-white/40'}`}>
+                  <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-none ${focusedField === 'password' ? 'text-primary-400' : 'text-white/40'}`}>
                     <FiLock className="text-lg" />
                   </div>
                   <input type="password" name="password" value={formData.password} onChange={handleChange}

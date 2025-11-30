@@ -72,24 +72,44 @@ const AllAttendance = () => {
               </tr>
             </thead>
             <tbody>
-              {allAttendance.map((record) => (
-                <tr key={record._id}>
-                  <td>
-                    <div className="flex items-center gap-3">
-                      <div className="avatar avatar-md">{record.userId?.name?.charAt(0)}</div>
-                      <div>
-                        <div className="font-medium text-white">{record.userId?.name}</div>
-                        <div className="text-sm text-white/50">{record.userId?.employeeId} • {record.userId?.department}</div>
+              {allAttendance.map((record) => {
+                const getStatusBadgeClass = (status) => {
+                  switch (status) {
+                    case 'present': return 'badge-present';
+                    case 'late': return 'badge-late';
+                    case 'absent': return 'badge-absent';
+                    case 'half-day': return 'badge-half-day';
+                    default: return 'badge-primary';
+                  }
+                };
+                const getStatusLabel = (status) => {
+                  switch (status) {
+                    case 'present': return 'Present';
+                    case 'late': return 'Late';
+                    case 'absent': return 'Absent';
+                    case 'half-day': return 'Half-Day';
+                    default: return status;
+                  }
+                };
+                return (
+                  <tr key={record._id}>
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <div className="avatar avatar-md">{record.userId?.name?.charAt(0)}</div>
+                        <div>
+                          <div className="font-medium text-white">{record.userId?.name}</div>
+                          <div className="text-sm text-white/50">{record.userId?.employeeId} • {record.userId?.department}</div>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td>{format(new Date(record.date), 'MMM d, yyyy')}</td>
-                  <td>{record.checkInTime ? format(new Date(record.checkInTime), 'hh:mm a') : '-'}</td>
-                  <td>{record.checkOutTime ? format(new Date(record.checkOutTime), 'hh:mm a') : '-'}</td>
-                  <td><span className={`badge badge-${record.status}`}>{record.status}</span></td>
-                  <td>{record.totalHours?.toFixed(1) || 0}h</td>
-                </tr>
-              ))}
+                    </td>
+                    <td>{format(new Date(record.date), 'MMM d, yyyy')}</td>
+                    <td>{record.checkInTime ? format(new Date(record.checkInTime), 'hh:mm a') : '-'}</td>
+                    <td>{record.checkOutTime ? format(new Date(record.checkOutTime), 'hh:mm a') : (record.status === 'absent' ? '-' : 'Not checked out')}</td>
+                    <td><span className={`badge ${getStatusBadgeClass(record.status)}`}>{getStatusLabel(record.status)}</span></td>
+                    <td>{record.totalHours?.toFixed(1) || 0}h</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

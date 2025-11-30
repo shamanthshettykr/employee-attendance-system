@@ -5,19 +5,35 @@ import { register, reset } from '../store/slices/authSlice';
 import { toast } from 'react-toastify';
 import { FiUser, FiMail, FiLock, FiBriefcase, FiArrowRight, FiClock } from 'react-icons/fi';
 
+const InputField = ({ name, type = 'text', icon: Icon, placeholder, value, onChange, onFocus, onBlur, focusedField, ...props }) => (
+  <div className="relative">
+    <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-none ${focusedField === name ? 'text-primary-400' : 'text-white/40'}`}>
+      <Icon size={18} />
+    </div>
+    <input type={type} name={name} value={value} onChange={onChange}
+      onFocus={onFocus} onBlur={onBlur}
+      className="input pl-12" placeholder={placeholder} {...props} />
+  </div>
+);
+
 const Register = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '', department: '' });
   const [focusedField, setFocusedField] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth);
+  const { user, isLoading, isError, isSuccess, message, pendingApproval } = useSelector((state) => state.auth);
   const departments = ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations'];
 
   useEffect(() => {
     if (isError) toast.error(message);
-    if (isSuccess || user) navigate('/employee/dashboard');
+    if (isSuccess && pendingApproval) {
+      toast.success(message || 'Registration successful! Awaiting manager approval.');
+      setTimeout(() => navigate('/login'), 3000);
+    } else if (isSuccess || user) {
+      navigate('/employee/dashboard');
+    }
     dispatch(reset());
-  }, [user, isError, isSuccess, message, navigate, dispatch]);
+  }, [user, isError, isSuccess, message, pendingApproval, navigate, dispatch]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleSubmit = (e) => {
@@ -26,17 +42,6 @@ const Register = () => {
     const { confirmPassword, ...userData } = formData;
     dispatch(register(userData));
   };
-
-  const InputField = ({ name, type = 'text', icon: Icon, placeholder, ...props }) => (
-    <div className="relative">
-      <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${focusedField === name ? 'text-primary-400' : 'text-white/40'}`}>
-        <Icon size={18} />
-      </div>
-      <input type={type} name={name} value={formData[name]} onChange={handleChange}
-        onFocus={() => setFocusedField(name)} onBlur={() => setFocusedField(null)}
-        className="input pl-12" placeholder={placeholder} {...props} />
-    </div>
-  );
 
   return (
     <div className="min-h-screen flex relative overflow-hidden">
@@ -79,12 +84,12 @@ const Register = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div><label className="label">Full Name</label><InputField name="name" icon={FiUser} placeholder="John Doe" required /></div>
-              <div><label className="label">Email</label><InputField name="email" type="email" icon={FiMail} placeholder="you@example.com" required /></div>
+              <div><label className="label">Full Name</label><InputField name="name" icon={FiUser} placeholder="John Doe" value={formData.name} onChange={handleChange} onFocus={() => setFocusedField('name')} onBlur={() => setFocusedField(null)} focusedField={focusedField} required /></div>
+              <div><label className="label">Email</label><InputField name="email" type="email" icon={FiMail} placeholder="you@example.com" value={formData.email} onChange={handleChange} onFocus={() => setFocusedField('email')} onBlur={() => setFocusedField(null)} focusedField={focusedField} required /></div>
               <div>
                 <label className="label">Department</label>
                 <div className="relative">
-                  <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${focusedField === 'department' ? 'text-primary-400' : 'text-white/40'}`}><FiBriefcase size={18} /></div>
+                  <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-none ${focusedField === 'department' ? 'text-primary-400' : 'text-white/40'}`}><FiBriefcase size={18} /></div>
                   <select name="department" value={formData.department} onChange={handleChange} onFocus={() => setFocusedField('department')} onBlur={() => setFocusedField(null)} required className="input pl-12 appearance-none cursor-pointer">
                     <option value="">Select Department</option>
                     {departments.map((dept) => (<option key={dept} value={dept}>{dept}</option>))}
@@ -92,8 +97,8 @@ const Register = () => {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="label">Password</label><InputField name="password" type="password" icon={FiLock} placeholder="••••••" required minLength={6} /></div>
-                <div><label className="label">Confirm</label><InputField name="confirmPassword" type="password" icon={FiLock} placeholder="••••••" required /></div>
+                <div><label className="label">Password</label><InputField name="password" type="password" icon={FiLock} placeholder="••••••" value={formData.password} onChange={handleChange} onFocus={() => setFocusedField('password')} onBlur={() => setFocusedField(null)} focusedField={focusedField} required minLength={6} /></div>
+                <div><label className="label">Confirm</label><InputField name="confirmPassword" type="password" icon={FiLock} placeholder="••••••" value={formData.confirmPassword} onChange={handleChange} onFocus={() => setFocusedField('confirmPassword')} onBlur={() => setFocusedField(null)} focusedField={focusedField} required /></div>
               </div>
 
               <button type="submit" disabled={isLoading} className="btn-primary w-full py-4 mt-2">

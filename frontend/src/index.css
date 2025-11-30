@@ -252,6 +252,19 @@ body::before {
     transform: translateY(-2px);
   }
 
+  .btn-outline-danger {
+    @apply btn px-6 py-3;
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    color: #f87171;
+  }
+
+  .btn-outline-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.8);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  }
+
   .btn-lg { @apply px-8 py-4 text-lg; }
   .btn-sm { @apply px-4 py-2 text-sm; }
 

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { getManagerStats } from '../../store/slices/dashboardSlice';
-import { FiUsers, FiUserCheck, FiUserX, FiAlertCircle, FiClock, FiRefreshCw, FiActivity, FiSun } from 'react-icons/fi';
+import { getPendingApprovals, approveUser, rejectUser } from '../../store/slices/authSlice';
+import { FiUsers, FiUserCheck, FiUserX, FiAlertCircle, FiClock, FiRefreshCw, FiActivity, FiSun, FiMail, FiBriefcase, FiHash } from 'react-icons/fi';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { format } from 'date-fns';
 
@@ -10,10 +12,12 @@ const COLORS = ['#22c55e', '#ef4444', '#facc15', '#fb923c'];
 const Dashboard = () => {
   const dispatch = useDispatch();
   const { managerStats, isLoading } = useSelector((state) => state.dashboard);
+  const { pendingApprovals } = useSelector((state) => state.auth);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
   useEffect(() => { const timer = setInterval(() => setCurrentDateTime(new Date()), 1000); return () => clearInterval(timer); }, []);
   useEffect(() => { dispatch(getManagerStats()); const interval = setInterval(() => dispatch(getManagerStats()), 30000); return () => clearInterval(interval); }, [dispatch]);
+  useEffect(() => { dispatch(getPendingApprovals()); }, [dispatch]);
 
   if (isLoading || !managerStats) return (
     <div className="flex items-center justify-center h-64">
@@ -234,6 +238,84 @@ const Dashboard = () => {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Pending Approvals Section */}
+      <div className="glass-card p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-lg font-semibold text-white">Pending Approvals</h2>
+            <p className="text-sm text-white/40">Review and approve new employee registrations</p>
+          </div>
+          {pendingApprovals?.length > 0 && (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-warning-500/10 border border-warning-500/30">
+              <FiClock className="text-warning-400" />
+              <span className="text-warning-400 font-medium">{pendingApprovals.length} Pending</span>
+            </div>
+          )}
+        </div>
+        {pendingApprovals?.length === 0 ? (
+          <div className="empty-state py-8">
+            <div className="empty-state-icon"><FiUserCheck size={28} /></div>
+            <p className="text-white/50">No pending approvals</p>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {pendingApprovals.slice(0, 5).map((user) => (
+              <div key={user._id} className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-primary-500/30 transition-all">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="avatar avatar-md text-lg">{user.name.charAt(0)}</div>
+                    <div>
+                      <h3 className="font-semibold text-white">{user.name}</h3>
+                      <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm text-white/50">
+                        <span className="flex items-center gap-1.5">
+                          <FiMail size={12} /> {user.email}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <FiHash size={12} /> {user.employeeId}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <FiBriefcase size={12} /> {user.department}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <FiClock size={12} /> {format(new Date(user.createdAt), 'MMM d, yyyy')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to reject this registration?')) {
+                          dispatch(rejectUser(user._id));
+                        }
+                      }}
+                      className="btn-outline-danger flex items-center gap-2 px-4 py-2 text-sm"
+                    >
+                      <FiUserX size={16} />
+                      Reject
+                    </button>
+                    <button
+                      onClick={() => dispatch(approveUser(user._id))}
+                      className="btn-primary flex items-center gap-2 px-4 py-2 text-sm"
+                    >
+                      <FiUserCheck size={16} />
+                      Approve
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {pendingApprovals.length > 5 && (
+              <div className="text-center pt-2">
+                <Link to="/manager/approvals" className="text-primary-400 hover:text-primary-300 text-sm font-medium">
+                  View all {pendingApprovals.length} pending approvals →
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

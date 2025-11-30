@@ -11,6 +11,7 @@ import ManagerDashboard from './pages/manager/Dashboard';
 import AllAttendance from './pages/manager/AllAttendance';
 import TeamCalendar from './pages/manager/TeamCalendar';
 import Reports from './pages/manager/Reports';
+import Approvals from './pages/manager/Approvals';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -64,6 +65,7 @@ function App() {
         <Route path="attendance" element={<AllAttendance />} />
         <Route path="calendar" element={<TeamCalendar />} />
         <Route path="reports" element={<Reports />} />
+        <Route path="approvals" element={<Approvals />} />
       </Route>
 
       {/* Default Route */}
