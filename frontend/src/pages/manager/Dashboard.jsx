@@ -91,6 +91,7 @@ const Dashboard = () => {
               <Legend wrapperStyle={{ paddingTop: '20px' }} />
               <Bar dataKey="present" fill="#22c55e" name="Present" radius={[6, 6, 0, 0]} />
               <Bar dataKey="late" fill="#facc15" name="Late" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="halfDay" fill="#fb923c" name="Half-Day" radius={[6, 6, 0, 0]} />
               <Bar dataKey="absent" fill="#ef4444" name="Absent" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -137,8 +138,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Absent & Late Employees */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      {/* Absent, Late & Half-Day Employees */}
+      <div className="grid lg:grid-cols-3 gap-6">
         {/* Absent Employees */}
         <div className="glass-card p-6">
           <div className="flex items-center gap-3 mb-6">
@@ -197,6 +198,39 @@ const Dashboard = () => {
             <div className="empty-state py-8">
               <div className="empty-state-icon"><FiClock size={28} /></div>
               <p className="text-white/50">No late arrivals today!</p>
+            </div>
+          )}
+        </div>
+
+        {/* Half-Day Employees */}
+        <div className="glass-card p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="icon-container icon-container-orange"><FiSun size={20} /></div>
+            <div>
+              <h2 className="font-semibold text-white">Half-Day Today</h2>
+              <p className="text-sm text-white/40">{stats.halfDayEmployees?.length || 0} employees</p>
+            </div>
+          </div>
+          {stats.halfDayEmployees?.length > 0 ? (
+            <div className="space-y-3 max-h-72 overflow-y-auto">
+              {stats.halfDayEmployees.map((record, i) => (
+                <div key={record._id} className="flex items-center gap-3 p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl hover:bg-orange-500/20 transition-colors" style={{ animationDelay: `${i * 0.03}s` }}>
+                  <div className="avatar avatar-md">{record.userId?.name?.charAt(0) || '?'}</div>
+                  <div className="flex-1">
+                    <p className="font-medium text-white">{record.userId?.name}</p>
+                    <p className="text-sm text-white/50">{record.userId?.employeeId} • {record.userId?.department}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-orange-400">{record.totalHours?.toFixed(1)}h</p>
+                    <p className="text-xs text-white/40">Hours worked</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state py-8">
+              <div className="empty-state-icon"><FiSun size={28} /></div>
+              <p className="text-white/50">No half-day employees today!</p>
             </div>
           )}
         </div>
