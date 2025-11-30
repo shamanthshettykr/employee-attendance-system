@@ -1,5 +1,12 @@
 # Employee Attendance System
 
+**Developer Information:**
+- **Name:** ShamanthShetty K R
+- **College:** Adichunchanagiri Institute of Technology
+- **Contact:** +91 9740642860
+
+---
+
 A full-stack attendance tracking system with Employee and Manager roles, built with React, Redux Toolkit, Node.js, Express, and MongoDB.
 
 ## Features
