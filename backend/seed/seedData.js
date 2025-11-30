@@ -155,10 +155,10 @@ const generateAttendance = (userId, daysBack = 30, employeeIndex = 0) => {
     if (!isToday && (date.getDay() === 0 || date.getDay() === 6)) continue;
 
     // For today: ensure we have a mix of present, late, absent, and half-day
-    // Employee 0,1 = present, Employee 2,3 = late, Employee 4,9 = absent, Employee 5,6 = half-day (already checked out)
+    // Employee 0,1 = present, Employee 2,3 = late, Employee 4,9,10 = absent, Employee 5,6 = half-day (already checked out)
     if (isToday) {
-      // Employees 4 and 9 are absent today
-      if (employeeIndex === 4 || employeeIndex === 9) continue;
+      // Employees 4, 9, and 10 (Ryan Patel) are absent today
+      if (employeeIndex === 4 || employeeIndex === 9 || employeeIndex === 10) continue;
 
       // Employees 5 and 6 are half-day (already checked out with 4-5 hours)
       if (employeeIndex === 5 || employeeIndex === 6) {
@@ -327,7 +327,7 @@ const seedDatabase = async () => {
     console.log('emily@company.com  - Late (EMP008)');
     console.log('david@company.com  - Present (EMP009)');
     console.log('lisa@company.com   - Absent (EMP010)');
-    console.log('ryan@company.com   - Present (EMP011)');
+    console.log('ryan@company.com   - Absent (EMP011)');
     console.log('jessica@company.com - Present (EMP012)');
     console.log('\nAll passwords: password123');
     console.log('==============================\n');

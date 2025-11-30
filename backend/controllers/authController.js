@@ -25,33 +25,15 @@ exports.register = async (req, res) => {
     // Generate employee ID
     const employeeId = await User.generateEmployeeId();
 
-    // Create user - managers are auto-approved, employees need approval only if new registration
-    const isManager = role === 'manager';
+    // Create user - all users are auto-approved
     user = await User.create({
       name,
       email,
       password,
       role: role || 'employee',
       employeeId,
-      department,
-      isApproved: isManager, // Managers are auto-approved
-      isNewRegistration: !isManager // Only new employee registrations need approval
+      department
     });
-
-    // Return success message for employees (pending approval)
-    if (!isManager) {
-      return res.status(201).json({
-        success: true,
-        message: 'Registration successful! Please wait for manager approval before logging in.',
-        pendingApproval: true,
-        data: {
-          name: user.name,
-          email: user.email,
-          employeeId: user.employeeId,
-          department: user.department
-        }
-      });
-    }
 
     sendTokenResponse(user, 201, res);
   } catch (error) {
@@ -94,16 +76,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Check if new employee registration needs approval
-    // Old employees (isNewRegistration: false) can login without approval
-    // New registrations (isNewRegistration: true) need approval
-    if (user.isNewRegistration && !user.isApproved && user.role === 'employee') {
-      return res.status(403).json({
-        success: false,
-        message: 'Your account is pending approval. Please wait for manager approval.',
-        pendingApproval: true
-      });
-    }
+    // All approved users can login directly
 
     sendTokenResponse(user, 200, res);
   } catch (error) {
@@ -121,7 +94,14 @@ exports.login = async (req, res) => {
 // @access  Private (Manager only)
 exports.getPendingApprovals = async (req, res) => {
   try {
-    const pendingUsers = await User.find({ isNewRegistration: true, isApproved: false, role: 'employee' })
+    // Get users that need approval OR need password setup
+    const pendingUsers = await User.find({
+      role: 'employee',
+      $or: [
+        { isNewRegistration: true, isApproved: false },
+        { passwordSetupRequired: true }
+      ]
+    })
       .select('-password')
       .sort({ createdAt: -1 });
 
@@ -129,6 +109,64 @@ exports.getPendingApprovals = async (req, res) => {
       success: true,
       count: pendingUsers.length,
       data: pendingUsers
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Create employee account (Manager creates employee)
+// @route   POST /api/auth/create-employee
+// @access  Private (Manager only)
+exports.createEmployee = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    const { name, email, department } = req.body;
+
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already exists with this email'
+      });
+    }
+
+    // Generate employee ID
+    const employeeId = await User.generateEmployeeId();
+
+    // Create user without password - employee will set it during registration
+    const user = await User.create({
+      name,
+      email,
+      role: 'employee',
+      employeeId,
+      department,
+      isApproved: false, // Will be approved when employee sets password
+      isNewRegistration: false,
+      passwordSetupRequired: true // Employee must register to set password
+    });
+
+    res.status(201).json({
+      success: true,
+      message: `Employee account created for ${user.name}. They must register to set their password.`,
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        employeeId: user.employeeId,
+        department: user.department,
+        passwordSetupRequired: true
+      }
     });
   } catch (error) {
     console.error(error);
@@ -154,11 +192,20 @@ exports.approveUser = async (req, res) => {
       });
     }
 
-    if (user.isApproved) {
+    if (user.isApproved && !user.passwordSetupRequired) {
       return res.status(400).json({
         success: false,
         message: 'User is already approved'
       });
+    }
+
+    // Generate a default password if user needs password setup
+    let generatedPassword = null;
+    if (user.passwordSetupRequired || !user.password) {
+      // Generate a password based on employee ID (e.g., EMP001 -> password: EMP001@2025)
+      generatedPassword = `${user.employeeId}@2025`;
+      user.password = generatedPassword;
+      user.passwordSetupRequired = false;
     }
 
     user.isApproved = true;
@@ -167,10 +214,21 @@ exports.approveUser = async (req, res) => {
     user.approvedAt = new Date();
     await user.save();
 
+    // Return the generated password so manager can share it with employee
+    const responseData = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      employeeId: user.employeeId,
+      department: user.department,
+      isApproved: user.isApproved
+    };
+
     res.status(200).json({
       success: true,
-      message: `${user.name} has been approved successfully`,
-      data: user
+      message: `${user.name} has been approved successfully${generatedPassword ? '. Password has been auto-generated.' : ''}`,
+      data: responseData,
+      generatedPassword: generatedPassword // Include password for manager to share
     });
   } catch (error) {
     console.error(error);

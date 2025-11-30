@@ -6,6 +6,7 @@ import { getPendingApprovals, approveUser, rejectUser } from '../../store/slices
 import { FiUsers, FiUserCheck, FiUserX, FiAlertCircle, FiClock, FiRefreshCw, FiActivity, FiSun, FiMail, FiBriefcase, FiHash } from 'react-icons/fi';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { format } from 'date-fns';
+import { toast } from 'react-toastify';
 
 const COLORS = ['#22c55e', '#ef4444', '#facc15', '#fb923c'];
 
@@ -286,9 +287,12 @@ const Dashboard = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         if (window.confirm('Are you sure you want to reject this registration?')) {
-                          dispatch(rejectUser(user._id));
+                          const result = await dispatch(rejectUser(user._id));
+                          if (!result.error) {
+                            dispatch(getPendingApprovals());
+                          }
                         }
                       }}
                       className="btn-outline-danger flex items-center gap-2 px-4 py-2 text-sm"
@@ -297,11 +301,34 @@ const Dashboard = () => {
                       Reject
                     </button>
                     <button
-                      onClick={() => dispatch(approveUser(user._id))}
+                      onClick={async () => {
+                        const result = await dispatch(approveUser(user._id));
+                        if (result.error) {
+                          toast.error(result.payload || 'Failed to approve user');
+                        } else {
+                          const response = result.payload;
+                          if (response.generatedPassword) {
+                            toast.success(
+                              <div>
+                                <div className="font-semibold mb-2">{response.message}</div>
+                                <div className="text-sm">
+                                  <strong>Login Credentials:</strong><br />
+                                  Email: {response.data.email}<br />
+                                  Password: <span className="font-mono bg-white/10 px-2 py-1 rounded">{response.generatedPassword}</span>
+                                </div>
+                              </div>,
+                              { autoClose: 10000 }
+                            );
+                          } else {
+                            toast.success(response.message || 'User approved successfully');
+                          }
+                          dispatch(getPendingApprovals());
+                        }
+                      }}
                       className="btn-primary flex items-center gap-2 px-4 py-2 text-sm"
                     >
                       <FiUserCheck size={16} />
-                      Approve
+                      {user.passwordSetupRequired ? 'Approve & Generate' : 'Approve'}
                     </button>
                   </div>
                 </div>

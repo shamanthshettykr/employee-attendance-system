@@ -13,8 +13,6 @@ A full-stack attendance tracking system with Employee and Manager roles, built w
 
 ### Manager Features
 - ✅ Login
-- ✅ Approve/Reject new employee registrations
-- ✅ View pending approval requests with badge notifications
 - ✅ View all employees attendance
 - ✅ Filter by employee, date, status, department
 - ✅ View team attendance summary
@@ -108,9 +106,6 @@ After running the seed script:
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
 - `GET /api/auth/me` - Get current user
-- `GET /api/auth/pending-approvals` - Get pending approvals (Manager only)
-- `PUT /api/auth/approve/:userId` - Approve user (Manager only)
-- `DELETE /api/auth/reject/:userId` - Reject user (Manager only)
 
 ### Attendance (Employee)
 - `POST /api/attendance/checkin` - Check in
@@ -157,7 +152,42 @@ employee-attendance-system/
 
 ## Environment Variables
 
-See `.env.example` for all required environment variables.
+Copy `.env.example` to `.env` in the `backend` directory and update the values:
+
+```bash
+cd backend
+cp .env.example .env
+```
+
+Required environment variables:
+- `PORT` - Server port (default: 5000)
+- `NODE_ENV` - Environment (development/production)
+- `MONGODB_URI` - MongoDB connection string
+- `JWT_SECRET` - Secret key for JWT tokens
+- `JWT_EXPIRE` - JWT token expiration (default: 7d)
+- `OFFICE_START_TIME` - Office start time (default: 09:00)
+- `LATE_THRESHOLD_MINUTES` - Minutes after start time to mark as late (default: 15)
+
+## Screenshots
+
+> **Note:** Add screenshots here to showcase the application UI and features.
+
+### Employee Portal
+- **Dashboard**: Overview of today's status, monthly stats, and recent attendance
+- **Mark Attendance**: Quick check-in/check-out interface
+- **History**: Calendar view with color-coded attendance (Green: Present, Red: Absent, Yellow: Late, Orange: Half-Day)
+- **Profile**: Employee information and settings
+
+### Manager Portal
+- **Dashboard**: Team statistics, weekly trends, department overview, and pending approvals
+- **All Attendance**: Comprehensive view with advanced filtering options
+- **Team Calendar**: Visual calendar showing team attendance patterns
+- **Reports**: Generate and export attendance reports in CSV format
+
+To add screenshots:
+1. Take screenshots of key pages
+2. Save them in a `screenshots/` folder
+3. Update this section with image references: `![Description](./screenshots/image.png)`
 
 ## License
 

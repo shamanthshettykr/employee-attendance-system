@@ -42,12 +42,7 @@ const userSchema = new mongoose.Schema({
   },
   isApproved: {
     type: Boolean,
-    default: false
-  },
-  isNewRegistration: {
-    type: Boolean,
-    default: true,
-    description: 'True for new registrations requiring approval, false for existing employees'
+    default: true
   },
   approvedBy: {
     type: mongoose.Schema.Types.ObjectId,
@@ -63,9 +58,9 @@ const userSchema = new mongoose.Schema({
 });
 
 // Hash password before saving
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function() {
   if (!this.isModified('password')) {
-    next();
+    return;
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);

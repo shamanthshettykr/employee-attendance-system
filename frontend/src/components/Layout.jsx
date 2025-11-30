@@ -1,22 +1,17 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout, getPendingApprovals } from '../store/slices/authSlice';
+import { logout } from '../store/slices/authSlice';
 import { FiHome, FiClock, FiCalendar, FiUser, FiUsers, FiFileText, FiLogOut, FiMenu, FiX, FiBell } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
 
 const Layout = () => {
-  const { user, pendingApprovals } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Fetch pending approvals for managers
-  useEffect(() => {
-    if (user?.role === 'manager') {
-      dispatch(getPendingApprovals());
-    }
-  }, [dispatch, user?.role]);
+
 
   const handleLogout = () => { dispatch(logout()); navigate('/login'); };
 
@@ -82,11 +77,7 @@ const Layout = () => {
                   className={`nav-item ${isActive ? 'active' : ''}`}>
                   <link.icon size={18} />
                   <span>{link.label}</span>
-                  {link.badge > 0 && (
-                    <span className="ml-auto px-2 py-0.5 text-xs font-semibold rounded-full bg-warning-500/20 text-warning-400 border border-warning-500/30">
-                      {link.badge}
-                    </span>
-                  )}
+
                 </Link>
               );
             })}

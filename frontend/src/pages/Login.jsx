@@ -11,21 +11,15 @@ const Login = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, isLoading, isError, isSuccess, message, pendingApproval } = useSelector((state) => state.auth);
+  const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (isError) {
-      if (pendingApproval) {
-        toast.warning(message || 'Your account is pending manager approval.');
-      } else {
-        toast.error(message);
-      }
-    }
+    if (isError) toast.error(message);
     if (isSuccess || user) {
       navigate(user?.role === 'manager' ? '/manager/dashboard' : '/employee/dashboard');
     }
     dispatch(reset());
-  }, [user, isError, isSuccess, message, pendingApproval, navigate, dispatch]);
+  }, [user, isError, isSuccess, message, navigate, dispatch]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleSubmit = (e) => { e.preventDefault(); dispatch(login(formData)); };

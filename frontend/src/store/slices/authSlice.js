@@ -115,6 +115,20 @@ export const rejectUser = createAsyncThunk(
   }
 );
 
+// Create employee (Manager only)
+export const createEmployee = createAsyncThunk(
+  'auth/createEmployee',
+  async (userData, thunkAPI) => {
+    try {
+      const response = await api.post('/auth/create-employee', userData);
+      return response.data;
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -182,19 +196,54 @@ const authSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
       })
+      .addCase(approveUser.pending, (state) => {
+        state.isLoading = true;
+        state.isError = false;
+      })
       .addCase(approveUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
         state.pendingApprovals = state.pendingApprovals.filter(
           user => user._id !== action.payload.data._id
         );
         state.message = action.payload.message;
-        state.isSuccess = true;
+      })
+      .addCase(approveUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(rejectUser.pending, (state) => {
+        state.isLoading = true;
+        state.isError = false;
       })
       .addCase(rejectUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
         state.pendingApprovals = state.pendingApprovals.filter(
           user => user._id !== action.payload.userId
         );
         state.message = action.payload.message;
+      })
+      .addCase(rejectUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(createEmployee.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(createEmployee.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.isSuccess = true;
+        state.message = action.payload.message;
+        // Add the new employee to pending approvals (they need to set password)
+        state.pendingApprovals.push(action.payload.data);
+      })
+      .addCase(createEmployee.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
       });
   },
 });
