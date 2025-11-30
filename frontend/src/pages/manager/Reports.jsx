@@ -64,17 +64,17 @@ const Reports = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-dark-900">Attendance Reports</h1>
+        <h1 className="text-2xl font-bold text-white">Attendance Reports</h1>
         <button onClick={handleExport} disabled={isExporting || allAttendance.length === 0} className="btn-success">
           <FiDownload size={18} />{isExporting ? 'Exporting...' : 'Export CSV'}
         </button>
       </div>
 
       {/* Filters */}
-      <div className="card p-6">
+      <div className="glass-card p-6">
         <div className="flex items-center gap-2 mb-5">
           <div className="icon-container icon-container-primary"><FiFileText size={18} /></div>
-          <h2 className="font-semibold text-dark-900">Generate Report</h2>
+          <h2 className="font-semibold text-white">Generate Report</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div><label className="label">Start Date</label><input type="date" name="startDate" value={filters.startDate} onChange={handleFilterChange} className="input" /></div>
@@ -88,10 +88,10 @@ const Reports = () => {
       {allAttendance.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {summaryStats.map((stat, i) => (
-            <div key={stat.label} className="stat-card" style={{ animationDelay: `${i * 0.05}s` }}>
+            <div key={stat.label} className="stat-card p-4" style={{ animationDelay: `${i * 0.05}s` }}>
               <div className="flex items-center gap-3">
                 <div className={`icon-container icon-container-${stat.color}`}><stat.icon size={18} /></div>
-                <div><p className="text-xl font-bold text-dark-900">{stat.value}</p><p className="text-dark-500 text-sm">{stat.label}</p></div>
+                <div><p className="text-xl font-bold text-white">{stat.value}</p><p className="text-white/50 text-sm">{stat.label}</p></div>
               </div>
             </div>
           ))}
@@ -99,7 +99,7 @@ const Reports = () => {
       )}
 
       {/* Table */}
-      <div className="card overflow-hidden">
+      <div className="glass-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="table">
             <thead>
@@ -110,21 +110,21 @@ const Reports = () => {
             <tbody>
               {allAttendance.map((record) => (
                 <tr key={record._id}>
-                  <td className="text-dark-500">{record.userId?.employeeId}</td>
-                  <td className="font-medium text-dark-900">{record.userId?.name}</td>
-                  <td className="text-dark-500">{record.userId?.department}</td>
-                  <td className="text-dark-500">{format(new Date(record.date), 'MMM d, yyyy')}</td>
-                  <td className="text-dark-500">{record.checkInTime ? format(new Date(record.checkInTime), 'hh:mm a') : '-'}</td>
-                  <td className="text-dark-500">{record.checkOutTime ? format(new Date(record.checkOutTime), 'hh:mm a') : '-'}</td>
+                  <td>{record.userId?.employeeId}</td>
+                  <td className="font-medium text-white">{record.userId?.name}</td>
+                  <td>{record.userId?.department}</td>
+                  <td>{format(new Date(record.date), 'MMM d, yyyy')}</td>
+                  <td>{record.checkInTime ? format(new Date(record.checkInTime), 'hh:mm a') : '-'}</td>
+                  <td>{record.checkOutTime ? format(new Date(record.checkOutTime), 'hh:mm a') : '-'}</td>
                   <td><span className={`badge badge-${record.status}`}>{record.status}</span></td>
-                  <td className="text-dark-500">{record.totalHours?.toFixed(1) || 0}h</td>
+                  <td>{record.totalHours?.toFixed(1) || 0}h</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
         {allAttendance.length === 0 && (
-          <div className="empty-state py-12"><div className="empty-state-icon"><FiFileText size={28} /></div><p className="text-dark-500">Select a date range and click Generate to view report</p></div>
+          <div className="empty-state py-12"><div className="empty-state-icon"><FiFileText size={28} /></div><p className="text-white/50">Select a date range and click Generate to view report</p></div>
         )}
       </div>
     </div>

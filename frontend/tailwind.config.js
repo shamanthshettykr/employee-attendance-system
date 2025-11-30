@@ -7,44 +7,47 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Premium Dark Theme with Warm Accents
+        // Dark Mode Theme
         dark: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
-          950: '#020617',
+          50: '#1a1a2e',
+          100: '#16162a',
+          200: '#131326',
+          300: '#0f0f22',
+          400: '#0c0c1e',
+          500: '#09091a',
+          600: '#060616',
+          700: '#040412',
+          800: '#02020e',
+          900: '#01010a',
+          950: '#000006',
         },
+        // Neon Cyan Primary
         primary: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
+          50: '#ecfeff',
+          100: '#cffafe',
+          200: '#a5f3fc',
+          300: '#67e8f9',
+          400: '#22d3ee',
+          500: '#06b6d4',
+          600: '#0891b2',
+          700: '#0e7490',
+          800: '#155e75',
+          900: '#164e63',
         },
+        // Neon Purple Accent
         accent: {
-          50: '#fff7ed',
-          100: '#ffedd5',
-          200: '#fed7aa',
-          300: '#fdba74',
-          400: '#fb923c',
-          500: '#f97316',
-          600: '#ea580c',
-          700: '#c2410c',
-          800: '#9a3412',
-          900: '#7c2d12',
+          50: '#faf5ff',
+          100: '#f3e8ff',
+          200: '#e9d5ff',
+          300: '#d8b4fe',
+          400: '#c084fc',
+          500: '#a855f7',
+          600: '#9333ea',
+          700: '#7c3aed',
+          800: '#6d28d9',
+          900: '#5b21b6',
         },
+        // Green for Present
         success: {
           50: '#f0fdf4',
           100: '#dcfce7',
@@ -55,6 +58,7 @@ export default {
           600: '#16a34a',
           700: '#15803d',
         },
+        // Yellow for Late
         warning: {
           50: '#fefce8',
           100: '#fef9c3',
@@ -64,6 +68,7 @@ export default {
           500: '#eab308',
           600: '#ca8a04',
         },
+        // Red for Absent
         danger: {
           50: '#fef2f2',
           100: '#fee2e2',
@@ -73,11 +78,11 @@ export default {
           500: '#ef4444',
           600: '#dc2626',
         },
-        surface: {
-          50: '#ffffff',
-          100: '#fafafa',
-          200: '#f5f5f5',
-          300: '#e5e5e5',
+        // Glass surfaces
+        glass: {
+          light: 'rgba(255, 255, 255, 0.05)',
+          medium: 'rgba(255, 255, 255, 0.1)',
+          heavy: 'rgba(255, 255, 255, 0.15)',
         }
       },
       fontFamily: {
@@ -94,17 +99,23 @@ export default {
         '5xl': '2.5rem',
       },
       boxShadow: {
-        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
-        'soft-lg': '0 10px 40px -10px rgba(0, 0, 0, 0.1), 0 2px 10px -2px rgba(0, 0, 0, 0.04)',
-        'soft-xl': '0 20px 60px -15px rgba(0, 0, 0, 0.12), 0 4px 20px -4px rgba(0, 0, 0, 0.05)',
-        'glow-primary': '0 0 40px -10px rgba(99, 102, 241, 0.5)',
-        'glow-accent': '0 0 40px -10px rgba(249, 115, 22, 0.5)',
-        'glow-success': '0 0 30px -10px rgba(34, 197, 94, 0.5)',
-        'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)',
-        'card': '0 1px 3px rgba(0,0,0,0.05), 0 20px 40px -20px rgba(0,0,0,0.1)',
-        'card-hover': '0 1px 3px rgba(0,0,0,0.05), 0 30px 60px -20px rgba(0,0,0,0.15)',
-        'button': '0 1px 2px rgba(0,0,0,0.05), 0 4px 12px rgba(99, 102, 241, 0.15)',
-        'button-hover': '0 1px 2px rgba(0,0,0,0.05), 0 8px 24px rgba(99, 102, 241, 0.25)',
+        // Glassmorphism shadows
+        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+        'glass-sm': '0 4px 16px 0 rgba(0, 0, 0, 0.25)',
+        'glass-lg': '0 12px 48px 0 rgba(0, 0, 0, 0.45)',
+        // Neon glow effects
+        'glow-cyan': '0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(6, 182, 212, 0.3), 0 0 60px rgba(6, 182, 212, 0.1)',
+        'glow-purple': '0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.3), 0 0 60px rgba(168, 85, 247, 0.1)',
+        'glow-green': '0 0 20px rgba(34, 197, 94, 0.5), 0 0 40px rgba(34, 197, 94, 0.3)',
+        'glow-yellow': '0 0 20px rgba(250, 204, 21, 0.5), 0 0 40px rgba(250, 204, 21, 0.3)',
+        'glow-red': '0 0 20px rgba(239, 68, 68, 0.5), 0 0 40px rgba(239, 68, 68, 0.3)',
+        // Neumorphism shadows
+        'neu-raised': '8px 8px 16px rgba(0, 0, 0, 0.4), -8px -8px 16px rgba(255, 255, 255, 0.05)',
+        'neu-pressed': 'inset 4px 4px 8px rgba(0, 0, 0, 0.4), inset -4px -4px 8px rgba(255, 255, 255, 0.05)',
+        'neu-flat': '4px 4px 8px rgba(0, 0, 0, 0.3), -4px -4px 8px rgba(255, 255, 255, 0.03)',
+        // Button shadows
+        'button': '0 4px 14px rgba(6, 182, 212, 0.4)',
+        'button-hover': '0 6px 20px rgba(6, 182, 212, 0.6)',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

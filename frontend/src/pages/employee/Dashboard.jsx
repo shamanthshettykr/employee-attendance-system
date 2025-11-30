@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getEmployeeStats } from '../../store/slices/dashboardSlice';
 import { checkIn, checkOut, getTodayStatus } from '../../store/slices/attendanceSlice';
 import { toast } from 'react-toastify';
-import { FiClock, FiCheckCircle, FiXCircle, FiAlertCircle, FiLogIn, FiLogOut, FiTrendingUp, FiCalendar, FiArrowRight } from 'react-icons/fi';
+import { FiClock, FiCheckCircle, FiXCircle, FiAlertCircle, FiLogIn, FiLogOut, FiTrendingUp, FiArrowRight } from 'react-icons/fi';
 import { format } from 'date-fns';
 
 const Dashboard = () => {
@@ -21,57 +21,51 @@ const Dashboard = () => {
 
   if (isLoading) return (
     <div className="flex items-center justify-center h-64">
-      <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+      <div className="w-12 h-12 border-4 border-primary-400/30 border-t-primary-400 rounded-full animate-spin"></div>
     </div>
   );
 
   const stats = employeeStats;
-  const statusConfig = {
-    'checked-in': { bg: 'bg-success-50', text: 'text-success-700', dot: 'bg-success-500', label: 'Currently Working', icon: 'bg-success-500' },
-    'checked-out': { bg: 'bg-primary-50', text: 'text-primary-700', dot: 'bg-primary-500', label: 'Day Complete', icon: 'bg-primary-500' },
-    'not-checked-in': { bg: 'bg-dark-100', text: 'text-dark-600', dot: 'bg-dark-400', label: 'Not Checked In', icon: 'bg-dark-400' }
-  };
-  const currentStatus = statusConfig[stats?.today?.status] || statusConfig['not-checked-in'];
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-dark-900">Good {currentTime.getHours() < 12 ? 'Morning' : currentTime.getHours() < 17 ? 'Afternoon' : 'Evening'}, {user?.name?.split(' ')[0]}!</h1>
-          <p className="text-dark-500 mt-1">{format(currentTime, 'EEEE, MMMM d, yyyy')}</p>
+          <h1 className="text-2xl font-bold text-white">Good {currentTime.getHours() < 12 ? 'Morning' : currentTime.getHours() < 17 ? 'Afternoon' : 'Evening'}, {user?.name?.split(' ')[0]}!</h1>
+          <p className="text-white/50 mt-1">{format(currentTime, 'EEEE, MMMM d, yyyy')}</p>
         </div>
-        <div className="flex items-center gap-3 px-5 py-3 bg-white rounded-2xl border border-dark-200">
-          <FiClock className="text-primary-600 text-xl" />
-          <span className="text-2xl font-bold text-dark-900 tabular-nums">{format(currentTime, 'hh:mm:ss')}</span>
-          <span className="text-dark-400 text-sm">{format(currentTime, 'a')}</span>
+        <div className="glass-card flex items-center gap-3 px-5 py-3">
+          <FiClock className="text-primary-400 text-xl" />
+          <span className="text-2xl font-bold text-white tabular-nums">{format(currentTime, 'hh:mm:ss')}</span>
+          <span className="text-white/40 text-sm">{format(currentTime, 'a')}</span>
         </div>
       </div>
 
       {/* Today's Status Card */}
-      <div className="card p-6">
+      <div className="glass-card p-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
-            <div className={`w-16 h-16 rounded-2xl ${currentStatus.icon} flex items-center justify-center shadow-lg`}>
-              <FiClock className="text-white text-2xl" />
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${stats?.today?.status === 'checked-in' ? 'bg-success-500/20 shadow-glow-green' : stats?.today?.status === 'checked-out' ? 'bg-primary-500/20 shadow-glow-cyan' : 'bg-white/10'}`}>
+              <FiClock className={`text-2xl ${stats?.today?.status === 'checked-in' ? 'text-success-400' : stats?.today?.status === 'checked-out' ? 'text-primary-400' : 'text-white/50'}`} />
             </div>
             <div>
-              <p className="text-sm text-dark-500 mb-1">Today's Status</p>
-              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${currentStatus.bg} ${currentStatus.text}`}>
-                <span className={`w-2 h-2 rounded-full ${currentStatus.dot} ${stats?.today?.status === 'checked-in' ? 'animate-pulse' : ''}`}></span>
-                <span className="font-semibold text-sm">{currentStatus.label}</span>
+              <p className="text-sm text-white/50 mb-1">Today's Status</p>
+              <div className={`badge ${stats?.today?.status === 'checked-in' ? 'badge-present' : stats?.today?.status === 'checked-out' ? 'badge-primary' : 'bg-white/10 text-white/60 border border-white/20'}`}>
+                <span className={`w-2 h-2 rounded-full ${stats?.today?.status === 'checked-in' ? 'bg-success-400 animate-pulse' : stats?.today?.status === 'checked-out' ? 'bg-primary-400' : 'bg-white/40'}`}></span>
+                {stats?.today?.status === 'checked-in' ? 'Currently Working' : stats?.today?.status === 'checked-out' ? 'Day Complete' : 'Not Checked In'}
               </div>
               <div className="flex items-center gap-5 mt-3">
                 {stats?.today?.checkInTime && (
                   <div className="flex items-center gap-2 text-sm">
-                    <div className="w-7 h-7 rounded-lg bg-success-100 flex items-center justify-center"><FiLogIn className="text-success-600 text-sm" /></div>
-                    <span className="text-dark-600">{format(new Date(stats.today.checkInTime), 'hh:mm a')}</span>
+                    <div className="icon-container-sm icon-container-success"><FiLogIn className="text-sm" /></div>
+                    <span className="text-white/70">{format(new Date(stats.today.checkInTime), 'hh:mm a')}</span>
                   </div>
                 )}
                 {stats?.today?.checkOutTime && (
                   <div className="flex items-center gap-2 text-sm">
-                    <div className="w-7 h-7 rounded-lg bg-danger-100 flex items-center justify-center"><FiLogOut className="text-danger-600 text-sm" /></div>
-                    <span className="text-dark-600">{format(new Date(stats.today.checkOutTime), 'hh:mm a')}</span>
+                    <div className="icon-container-sm icon-container-danger"><FiLogOut className="text-sm" /></div>
+                    <span className="text-white/70">{format(new Date(stats.today.checkOutTime), 'hh:mm a')}</span>
                   </div>
                 )}
               </div>
@@ -79,13 +73,13 @@ const Dashboard = () => {
           </div>
           <div className="flex gap-3">
             {stats?.today?.status === 'not-checked-in' && (
-              <button onClick={handleCheckIn} disabled={attendanceLoading} className="btn-success btn-lg group">
-                {attendanceLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <><FiLogIn /><span>Check In</span><FiArrowRight className="group-hover:translate-x-1 transition-transform" /></>}
+              <button onClick={handleCheckIn} disabled={attendanceLoading} className="btn-success btn-lg">
+                {attendanceLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <><FiLogIn /><span>Check In</span><FiArrowRight /></>}
               </button>
             )}
             {stats?.today?.status === 'checked-in' && (
-              <button onClick={handleCheckOut} disabled={attendanceLoading} className="btn-danger btn-lg group">
-                {attendanceLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <><FiLogOut /><span>Check Out</span><FiArrowRight className="group-hover:translate-x-1 transition-transform" /></>}
+              <button onClick={handleCheckOut} disabled={attendanceLoading} className="btn-danger btn-lg">
+                {attendanceLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <><FiLogOut /><span>Check Out</span><FiArrowRight /></>}
               </button>
             )}
           </div>
@@ -100,20 +94,18 @@ const Dashboard = () => {
           { label: 'Late Arrivals', value: stats?.monthly?.late || 0, icon: FiAlertCircle, color: 'warning' },
           { label: 'Total Hours', value: stats?.monthly?.totalHours?.toFixed(1) || 0, icon: FiTrendingUp, color: 'primary' },
         ].map((stat, i) => (
-          <div key={stat.label} className="stat-card" style={{ animationDelay: `${i * 0.05}s` }}>
-            <div className="flex items-start justify-between mb-4">
-              <div className={`icon-container icon-container-${stat.color}`}><stat.icon size={20} /></div>
-            </div>
-            <p className="text-3xl font-bold text-dark-900 mb-1">{stat.value}</p>
-            <p className="text-sm text-dark-500">{stat.label}</p>
+          <div key={stat.label} className="stat-card p-5" style={{ animationDelay: `${i * 0.05}s` }}>
+            <div className={`icon-container icon-container-${stat.color} mb-4`}><stat.icon size={20} /></div>
+            <p className="text-3xl font-bold text-white mb-1">{stat.value}</p>
+            <p className="text-sm text-white/50">{stat.label}</p>
           </div>
         ))}
       </div>
 
       {/* Recent Attendance */}
-      <div className="card overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-dark-100">
-          <h2 className="text-lg font-semibold text-dark-900">Recent Attendance</h2>
+      <div className="glass-card overflow-hidden">
+        <div className="flex items-center justify-between p-6 border-b border-white/10">
+          <h2 className="text-lg font-semibold text-white">Recent Attendance</h2>
           <span className="badge badge-primary">Last 7 days</span>
         </div>
         <div className="overflow-x-auto">
@@ -121,12 +113,12 @@ const Dashboard = () => {
             <thead><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Hours</th></tr></thead>
             <tbody>
               {stats?.recentAttendance?.map((record, i) => (
-                <tr key={record._id} style={{ animationDelay: `${i * 0.03}s` }}>
-                  <td className="font-medium text-dark-900">{format(new Date(record.date), 'EEE, MMM d')}</td>
+                <tr key={record._id}>
+                  <td className="font-medium text-white">{format(new Date(record.date), 'EEE, MMM d')}</td>
                   <td>{record.checkInTime ? format(new Date(record.checkInTime), 'hh:mm a') : '—'}</td>
                   <td>{record.checkOutTime ? format(new Date(record.checkOutTime), 'hh:mm a') : '—'}</td>
                   <td><span className={`badge badge-${record.status === 'present' ? 'present' : record.status === 'late' ? 'late' : 'absent'}`}>{record.status}</span></td>
-                  <td className="font-medium">{record.totalHours?.toFixed(1) || 0}h</td>
+                  <td className="font-medium text-white">{record.totalHours?.toFixed(1) || 0}h</td>
                 </tr>
               ))}
             </tbody>
