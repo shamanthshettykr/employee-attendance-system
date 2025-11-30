@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getMyHistory, getMySummary } from '../../store/slices/attendanceSlice';
 import Calendar from 'react-calendar';
 import { format } from 'date-fns';
-import { FiChevronLeft, FiChevronRight, FiCheckCircle, FiXCircle, FiAlertCircle, FiClock, FiCalendar, FiLogIn, FiLogOut } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiCheckCircle, FiXCircle, FiAlertCircle, FiClock, FiCalendar, FiLogIn, FiLogOut, FiSun } from 'react-icons/fi';
 import 'react-calendar/dist/Calendar.css';
 
 const History = () => {
@@ -27,6 +27,7 @@ const History = () => {
     { label: 'Present', value: mySummary?.present || 0, icon: FiCheckCircle, color: 'success' },
     { label: 'Absent', value: mySummary?.absent || 0, icon: FiXCircle, color: 'danger' },
     { label: 'Late', value: mySummary?.late || 0, icon: FiAlertCircle, color: 'warning' },
+    { label: 'Half Days', value: mySummary?.halfDay || 0, icon: FiSun, color: 'orange' },
     { label: 'Total Hours', value: mySummary?.totalHours?.toFixed(1) || 0, icon: FiClock, color: 'primary' },
   ];
 

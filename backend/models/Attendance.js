@@ -20,7 +20,7 @@ const attendanceSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['present', 'absent', 'late'],
+    enum: ['present', 'absent', 'late', 'half-day'],
     default: 'present'
   },
   totalHours: {
@@ -44,6 +44,14 @@ attendanceSchema.methods.calculateTotalHours = function() {
     this.totalHours = Math.round(diffHours * 100) / 100;
   }
   return this.totalHours;
+};
+
+// Determine if it's a half-day based on total hours (>4 and <5 hours)
+attendanceSchema.methods.checkHalfDay = function() {
+  if (this.totalHours > 4 && this.totalHours < 5) {
+    this.status = 'half-day';
+  }
+  return this.status;
 };
 
 // Determine status based on check-in time

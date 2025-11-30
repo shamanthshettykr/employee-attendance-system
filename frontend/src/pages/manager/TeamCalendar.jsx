@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getAllAttendance, getTodayStatusAll } from '../../store/slices/attendanceSlice';
 import Calendar from 'react-calendar';
 import { format } from 'date-fns';
-import { FiChevronLeft, FiChevronRight, FiUsers, FiCheckCircle, FiXCircle, FiAlertCircle, FiCalendar } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiUsers, FiCheckCircle, FiXCircle, FiAlertCircle, FiCalendar, FiSun } from 'react-icons/fi';
 import 'react-calendar/dist/Calendar.css';
 
 const TeamCalendar = () => {
@@ -44,7 +44,7 @@ const TeamCalendar = () => {
       <h1 className="text-2xl font-bold text-white">Team Calendar View</h1>
 
       {/* Today's Quick Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         <div className="stat-card p-5 text-center">
           <div className="icon-container icon-container-success mx-auto mb-3"><FiCheckCircle size={20} /></div>
           <p className="text-2xl font-bold text-white">{todayStatusAll?.totalPresent || 0}</p>
@@ -59,6 +59,11 @@ const TeamCalendar = () => {
           <div className="icon-container icon-container-warning mx-auto mb-3"><FiAlertCircle size={20} /></div>
           <p className="text-2xl font-bold text-white">{todayStatusAll?.late?.length || 0}</p>
           <p className="text-white/50 text-sm">Late Today</p>
+        </div>
+        <div className="stat-card p-5 text-center">
+          <div className="icon-container icon-container-orange mx-auto mb-3"><FiSun size={20} /></div>
+          <p className="text-2xl font-bold text-white">{todayStatusAll?.halfDay?.length || 0}</p>
+          <p className="text-white/50 text-sm">Half-Day Today</p>
         </div>
       </div>
 

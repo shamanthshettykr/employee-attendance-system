@@ -55,6 +55,63 @@ const users = [
     role: 'employee',
     employeeId: 'EMP005',
     department: 'Finance'
+  },
+  // New demo employees with varied statuses
+  {
+    name: 'Sarah Davis',
+    email: 'sarah@company.com',
+    password: 'password123',
+    role: 'employee',
+    employeeId: 'EMP006',
+    department: 'Engineering'
+  },
+  {
+    name: 'Mike Thompson',
+    email: 'mike@company.com',
+    password: 'password123',
+    role: 'employee',
+    employeeId: 'EMP007',
+    department: 'Marketing'
+  },
+  {
+    name: 'Emily Chen',
+    email: 'emily@company.com',
+    password: 'password123',
+    role: 'employee',
+    employeeId: 'EMP008',
+    department: 'Sales'
+  },
+  {
+    name: 'David Kumar',
+    email: 'david@company.com',
+    password: 'password123',
+    role: 'employee',
+    employeeId: 'EMP009',
+    department: 'Finance'
+  },
+  {
+    name: 'Lisa Wang',
+    email: 'lisa@company.com',
+    password: 'password123',
+    role: 'employee',
+    employeeId: 'EMP010',
+    department: 'HR'
+  },
+  {
+    name: 'Ryan Patel',
+    email: 'ryan@company.com',
+    password: 'password123',
+    role: 'employee',
+    employeeId: 'EMP011',
+    department: 'Operations'
+  },
+  {
+    name: 'Jessica Lee',
+    email: 'jessica@company.com',
+    password: 'password123',
+    role: 'employee',
+    employeeId: 'EMP012',
+    department: 'Engineering'
   }
 ];
 
@@ -67,16 +124,39 @@ const generateAttendance = (userId, daysBack = 30, employeeIndex = 0) => {
     date.setDate(date.getDate() - i);
     date.setHours(0, 0, 0, 0);
 
-    // Skip weekends EXCEPT for today (to demo purposes)
+    // Skip weekends EXCEPT for today (for demo purposes)
     const isToday = i === 0;
     if (!isToday && (date.getDay() === 0 || date.getDay() === 6)) continue;
 
-    // For today: ensure we have a mix of present, late, and absent
-    // Employee 0,1 = present, Employee 2,3 = late, Employee 4 = absent
+    // For today: ensure we have a mix of present, late, absent, and half-day
+    // Employee 0,1 = present, Employee 2,3 = late, Employee 4,9 = absent, Employee 5,6 = half-day (already checked out)
     if (isToday) {
-      if (employeeIndex === 4) continue; // Skip - absent for today
+      // Employees 4 and 9 are absent today
+      if (employeeIndex === 4 || employeeIndex === 9) continue;
 
-      const isLate = employeeIndex >= 2; // Employees 2,3 are late
+      // Employees 5 and 6 are half-day (already checked out with 4-5 hours)
+      if (employeeIndex === 5 || employeeIndex === 6) {
+        const checkInTime = new Date(date);
+        checkInTime.setHours(8, 30 + Math.floor(Math.random() * 30), 0, 0);
+
+        // Check-out after 4-5 hours (half-day)
+        const checkOutTime = new Date(checkInTime);
+        const halfDayHours = 4 + Math.random() * 0.9; // 4.0 to 4.9 hours
+        checkOutTime.setTime(checkInTime.getTime() + halfDayHours * 60 * 60 * 1000);
+
+        attendance.push({
+          userId,
+          date,
+          checkInTime,
+          checkOutTime,
+          status: 'half-day',
+          totalHours: Math.round(halfDayHours * 100) / 100
+        });
+        continue;
+      }
+
+      // Employees 2,3,7 are late
+      const isLate = employeeIndex === 2 || employeeIndex === 3 || employeeIndex === 7;
 
       let checkInHour, checkInMin;
       if (isLate) {
@@ -103,46 +183,70 @@ const generateAttendance = (userId, daysBack = 30, employeeIndex = 0) => {
       continue;
     }
 
-    // Random attendance with 85% present rate for past days
-    const isPresent = Math.random() > 0.15;
+    // Random attendance with varied statuses for past days
+    const rand = Math.random();
 
-    if (isPresent) {
-      // 80% chance of on-time check-in (before 9:00 AM), 20% late
-      const isOnTime = Math.random() > 0.2;
+    // 10% absent, 10% half-day, 15% late, 65% present
+    if (rand < 0.10) {
+      // Absent - don't add record
+      continue;
+    }
 
-      let checkInHour, checkInMin;
-      if (isOnTime) {
-        // Check-in between 8:00 AM and 9:00 AM (on or before 9:00)
-        checkInHour = 8;
-        checkInMin = Math.floor(Math.random() * 60); // 8:00 - 8:59
-      } else {
-        // Late check-in between 9:01 AM and 10:00 AM
-        checkInHour = 9;
-        checkInMin = 1 + Math.floor(Math.random() * 59); // 9:01 - 9:59
-      }
+    let checkInHour, checkInMin, status;
+
+    if (rand < 0.20) {
+      // Half-day (10%)
+      checkInHour = 8;
+      checkInMin = 30 + Math.floor(Math.random() * 30);
 
       const checkInTime = new Date(date);
       checkInTime.setHours(checkInHour, checkInMin, 0, 0);
 
-      // Check-out between 6:00 PM and 8:00 PM (on or after 6:00 PM)
-      const checkOutHour = 18 + Math.floor(Math.random() * 2); // 18:00 - 19:59
-      const checkOutMin = Math.floor(Math.random() * 60);
-      const checkOutTime = new Date(date);
-      checkOutTime.setHours(checkOutHour, checkOutMin, 0, 0);
-
-      const totalHours = (checkOutTime - checkInTime) / (1000 * 60 * 60);
-      // Late if check-in is after 9:00 AM
-      const isLate = checkInHour > 9 || (checkInHour === 9 && checkInMin > 0);
+      // Check-out after 4-5 hours (half-day)
+      const checkOutTime = new Date(checkInTime);
+      const halfDayHours = 4 + Math.random() * 0.9; // 4.0 to 4.9 hours
+      checkOutTime.setTime(checkInTime.getTime() + halfDayHours * 60 * 60 * 1000);
 
       attendance.push({
         userId,
         date,
         checkInTime,
         checkOutTime,
-        status: isLate ? 'late' : 'present',
-        totalHours: Math.round(totalHours * 100) / 100
+        status: 'half-day',
+        totalHours: Math.round(halfDayHours * 100) / 100
       });
+      continue;
+    } else if (rand < 0.35) {
+      // Late (15%)
+      checkInHour = 9;
+      checkInMin = 1 + Math.floor(Math.random() * 59);
+      status = 'late';
+    } else {
+      // Present (65%)
+      checkInHour = 8;
+      checkInMin = Math.floor(Math.random() * 60);
+      status = 'present';
     }
+
+    const checkInTime = new Date(date);
+    checkInTime.setHours(checkInHour, checkInMin, 0, 0);
+
+    // Check-out between 6:00 PM and 8:00 PM
+    const checkOutHour = 18 + Math.floor(Math.random() * 2);
+    const checkOutMin = Math.floor(Math.random() * 60);
+    const checkOutTime = new Date(date);
+    checkOutTime.setHours(checkOutHour, checkOutMin, 0, 0);
+
+    const totalHours = (checkOutTime - checkInTime) / (1000 * 60 * 60);
+
+    attendance.push({
+      userId,
+      date,
+      checkInTime,
+      checkOutTime,
+      status,
+      totalHours: Math.round(totalHours * 100) / 100
+    });
   }
 
   return attendance;
@@ -186,12 +290,21 @@ const seedDatabase = async () => {
 
     console.log('\n=== Seed Data Summary ===');
     console.log('Manager: manager@company.com / password123');
-    console.log('Employee: john@company.com / password123');
-    console.log('Employee: jane@company.com / password123');
-    console.log('Employee: bob@company.com / password123');
-    console.log('Employee: alice@company.com / password123');
-    console.log('Employee: charlie@company.com / password123');
-    console.log('========================\n');
+    console.log('\n--- Employees (Today\'s Status) ---');
+    console.log('john@company.com   - Present (EMP001)');
+    console.log('jane@company.com   - Present (EMP002)');
+    console.log('bob@company.com    - Late (EMP003)');
+    console.log('alice@company.com  - Late (EMP004)');
+    console.log('charlie@company.com - Absent (EMP005)');
+    console.log('sarah@company.com  - Half-Day (EMP006)');
+    console.log('mike@company.com   - Half-Day (EMP007)');
+    console.log('emily@company.com  - Late (EMP008)');
+    console.log('david@company.com  - Present (EMP009)');
+    console.log('lisa@company.com   - Absent (EMP010)');
+    console.log('ryan@company.com   - Present (EMP011)');
+    console.log('jessica@company.com - Present (EMP012)');
+    console.log('\nAll passwords: password123');
+    console.log('==============================\n');
 
     process.exit(0);
   } catch (error) {

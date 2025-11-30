@@ -42,6 +42,7 @@ const AllAttendance = () => {
               <option value="present">Present</option>
               <option value="late">Late</option>
               <option value="absent">Absent</option>
+              <option value="half-day">Half-Day</option>
             </select>
           </div>
           <div><label className="label">Employee ID</label><input type="text" name="employeeId" value={filters.employeeId} onChange={handleFilterChange} placeholder="e.g., EMP001" className="input" /></div>

@@ -87,11 +87,12 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {[
           { label: 'Present Days', value: stats?.monthly?.present || 0, icon: FiCheckCircle, color: 'success' },
           { label: 'Absent Days', value: stats?.monthly?.absent || 0, icon: FiXCircle, color: 'danger' },
           { label: 'Late Arrivals', value: stats?.monthly?.late || 0, icon: FiAlertCircle, color: 'warning' },
+          { label: 'Half Days', value: stats?.monthly?.halfDay || 0, icon: FiClock, color: 'orange' },
           { label: 'Total Hours', value: stats?.monthly?.totalHours?.toFixed(1) || 0, icon: FiTrendingUp, color: 'primary' },
         ].map((stat, i) => (
           <div key={stat.label} className="stat-card p-5" style={{ animationDelay: `${i * 0.05}s` }}>
@@ -117,7 +118,7 @@ const Dashboard = () => {
                   <td className="font-medium text-white">{format(new Date(record.date), 'EEE, MMM d')}</td>
                   <td>{record.checkInTime ? format(new Date(record.checkInTime), 'hh:mm a') : '—'}</td>
                   <td>{record.checkOutTime ? format(new Date(record.checkOutTime), 'hh:mm a') : '—'}</td>
-                  <td><span className={`badge badge-${record.status === 'present' ? 'present' : record.status === 'late' ? 'late' : 'absent'}`}>{record.status}</span></td>
+                  <td><span className={`badge badge-${record.status}`}>{record.status}</span></td>
                   <td className="font-medium text-white">{record.totalHours?.toFixed(1) || 0}h</td>
                 </tr>
               ))}

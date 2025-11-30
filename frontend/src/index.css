@@ -184,6 +184,13 @@ body::before {
     box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
   }
 
+  .icon-container-orange {
+    color: #fb923c;
+    background: rgba(249, 115, 22, 0.15);
+    border-color: rgba(249, 115, 22, 0.3);
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+  }
+
   /* ===== NEON BUTTONS ===== */
   .btn {
     @apply inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-300 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
@@ -299,6 +306,13 @@ body::before {
     color: #f87171;
     border: 1px solid rgba(239, 68, 68, 0.4);
     box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+  }
+
+  .badge-half-day {
+    background: rgba(249, 115, 22, 0.2);
+    color: #fb923c;
+    border: 1px solid rgba(249, 115, 22, 0.4);
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.3);
   }
 
   .badge-primary {
@@ -482,6 +496,13 @@ body::before {
   background: rgba(250, 204, 21, 0.3) !important;
   border: 1px solid rgba(250, 204, 21, 0.5) !important;
   box-shadow: 0 0 15px rgba(250, 204, 21, 0.3) !important;
+}
+
+/* Orange for Half-Day */
+.attendance-half-day {
+  background: rgba(249, 115, 22, 0.3) !important;
+  border: 1px solid rgba(249, 115, 22, 0.5) !important;
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.3) !important;
 }
 
 /* ===== ANIMATIONS ===== */

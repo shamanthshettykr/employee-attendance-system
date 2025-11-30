@@ -98,6 +98,7 @@ exports.checkOut = async (req, res) => {
 
     attendance.checkOutTime = checkOutTime;
     attendance.calculateTotalHours();
+    attendance.checkHalfDay(); // Check if it's a half-day (>4 and <5 hours)
 
     await attendance.save();
 
@@ -171,6 +172,7 @@ exports.getMySummary = async (req, res) => {
       present: attendance.filter(a => a.status === 'present').length,
       absent: attendance.filter(a => a.status === 'absent').length,
       late: attendance.filter(a => a.status === 'late').length,
+      halfDay: attendance.filter(a => a.status === 'half-day').length,
       totalHours: attendance.reduce((sum, a) => sum + (a.totalHours || 0), 0),
       totalDays: attendance.length
     };
@@ -333,6 +335,7 @@ exports.getTeamSummary = async (req, res) => {
       present: attendance.filter(a => a.status === 'present').length,
       absent: attendance.filter(a => a.status === 'absent').length,
       late: attendance.filter(a => a.status === 'late').length,
+      halfDay: attendance.filter(a => a.status === 'half-day').length,
       totalHours: attendance.reduce((sum, a) => sum + (a.totalHours || 0), 0)
     };
 
@@ -453,9 +456,10 @@ exports.getTodayStatusAll = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
-        present: attendance.filter(a => a.status === 'present' || a.status === 'late'),
+        present: attendance.filter(a => a.status === 'present' || a.status === 'late' || a.status === 'half-day'),
         absent: absentEmployees,
         late: attendance.filter(a => a.status === 'late'),
+        halfDay: attendance.filter(a => a.status === 'half-day'),
         totalPresent: attendance.length,
         totalAbsent: absentEmployees.length
       }

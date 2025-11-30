@@ -52,6 +52,7 @@ exports.getEmployeeStats = async (req, res) => {
         present: monthlyAttendance.filter(a => a.status === 'present').length,
         absent: monthlyAttendance.filter(a => a.status === 'absent').length,
         late: monthlyAttendance.filter(a => a.status === 'late').length,
+        halfDay: monthlyAttendance.filter(a => a.status === 'half-day').length,
         totalHours: monthlyAttendance.reduce((sum, a) => sum + (a.totalHours || 0), 0)
       },
       recentAttendance
@@ -93,6 +94,7 @@ exports.getManagerStats = async (req, res) => {
     const presentToday = todayAttendance.length;
     const absentToday = totalEmployees - presentToday;
     const lateToday = todayAttendance.filter(a => a.status === 'late').length;
+    const halfDayToday = todayAttendance.filter(a => a.status === 'half-day').length;
 
     // Get absent employees today
     const presentIds = todayAttendance.map(a => a.userId._id.toString());
@@ -123,9 +125,10 @@ exports.getManagerStats = async (req, res) => {
       weeklyTrend.push({
         date: dayStart.toISOString().split('T')[0],
         day: dayStart.toLocaleDateString('en-US', { weekday: 'short' }),
-        present: dayAttendance.filter(a => a.status === 'present' || a.status === 'late').length,
+        present: dayAttendance.filter(a => a.status === 'present' || a.status === 'late' || a.status === 'half-day').length,
         absent: totalEmployees - dayAttendance.length,
-        late: dayAttendance.filter(a => a.status === 'late').length
+        late: dayAttendance.filter(a => a.status === 'late').length,
+        halfDay: dayAttendance.filter(a => a.status === 'half-day').length
       });
     }
 
@@ -151,7 +154,8 @@ exports.getManagerStats = async (req, res) => {
         todayStats: {
           present: presentToday,
           absent: absentToday,
-          late: lateToday
+          late: lateToday,
+          halfDay: halfDayToday
         },
         absentEmployees: absentEmployees.map(e => ({
           id: e._id,
@@ -160,6 +164,7 @@ exports.getManagerStats = async (req, res) => {
           department: e.department
         })),
         lateArrivals: todayAttendance.filter(a => a.status === 'late'),
+        halfDayEmployees: todayAttendance.filter(a => a.status === 'half-day'),
         weeklyTrend,
         departmentStats
       }

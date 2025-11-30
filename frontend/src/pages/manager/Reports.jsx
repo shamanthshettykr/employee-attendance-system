@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllAttendance } from '../../store/slices/attendanceSlice';
 import { format } from 'date-fns';
-import { FiDownload, FiFileText, FiSearch, FiCheckCircle, FiAlertCircle, FiXCircle, FiClock, FiList } from 'react-icons/fi';
+import { FiDownload, FiFileText, FiSearch, FiCheckCircle, FiAlertCircle, FiXCircle, FiClock, FiList, FiSun } from 'react-icons/fi';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
 
@@ -50,6 +50,7 @@ const Reports = () => {
     present: allAttendance.filter(a => a.status === 'present').length,
     late: allAttendance.filter(a => a.status === 'late').length,
     absent: allAttendance.filter(a => a.status === 'absent').length,
+    halfDay: allAttendance.filter(a => a.status === 'half-day').length,
     totalHours: allAttendance.reduce((sum, a) => sum + (a.totalHours || 0), 0),
   };
 
@@ -58,6 +59,7 @@ const Reports = () => {
     { label: 'Present', value: summary.present, icon: FiCheckCircle, color: 'success' },
     { label: 'Late', value: summary.late, icon: FiAlertCircle, color: 'warning' },
     { label: 'Absent', value: summary.absent, icon: FiXCircle, color: 'danger' },
+    { label: 'Half Days', value: summary.halfDay, icon: FiSun, color: 'orange' },
     { label: 'Total Hours', value: summary.totalHours.toFixed(1), icon: FiClock, color: 'primary' },
   ];
 
@@ -86,7 +88,7 @@ const Reports = () => {
 
       {/* Summary */}
       {allAttendance.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
           {summaryStats.map((stat, i) => (
             <div key={stat.label} className="stat-card p-4" style={{ animationDelay: `${i * 0.05}s` }}>
               <div className="flex items-center gap-3">

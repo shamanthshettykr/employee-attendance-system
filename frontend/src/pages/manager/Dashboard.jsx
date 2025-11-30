@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getManagerStats } from '../../store/slices/dashboardSlice';
-import { FiUsers, FiUserCheck, FiUserX, FiAlertCircle, FiClock, FiRefreshCw, FiActivity } from 'react-icons/fi';
+import { FiUsers, FiUserCheck, FiUserX, FiAlertCircle, FiClock, FiRefreshCw, FiActivity, FiSun } from 'react-icons/fi';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { format } from 'date-fns';
 
-const COLORS = ['#22c55e', '#ef4444', '#facc15'];
+const COLORS = ['#22c55e', '#ef4444', '#facc15', '#fb923c'];
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -26,6 +26,7 @@ const Dashboard = () => {
     { name: 'Present', value: stats.todayStats.present },
     { name: 'Absent', value: stats.todayStats.absent },
     { name: 'Late', value: stats.todayStats.late },
+    { name: 'Half-Day', value: stats.todayStats.halfDay || 0 },
   ];
 
   return (
@@ -51,12 +52,13 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {[
           { label: 'Total Employees', value: stats.totalEmployees, icon: FiUsers, color: 'primary' },
           { label: 'Present Today', value: stats.todayStats.present, icon: FiUserCheck, color: 'success' },
           { label: 'Absent Today', value: stats.todayStats.absent, icon: FiUserX, color: 'danger' },
           { label: 'Late Arrivals', value: stats.todayStats.late, icon: FiAlertCircle, color: 'warning' },
+          { label: 'Half Days', value: stats.todayStats.halfDay || 0, icon: FiSun, color: 'orange' },
         ].map((stat, i) => (
           <div key={stat.label} className="stat-card p-5" style={{ animationDelay: `${i * 0.05}s` }}>
             <div className="flex items-start justify-between mb-4">
